@@ -1,0 +1,114 @@
+{
+  "theme": "dark",
+  "archetype": "Archetype 4: Swiss & High-Contrast (Tech/Fintech variant)",
+  "rationale": "For a 'Waste Calculator', a dark mode interface with deep blues, high contrast whites, and glowing accents builds an atmosphere of professional authority (like a financial terminal). We will use electric red to highlight the 'waste' at the end to maximize emotional impact (o 'tapa na cara').",
+  "colors": {
+    "background": "hsl(222.2, 84%, 4.9%)",
+    "foreground": "hsl(210, 40%, 98%)",
+    "card": "hsl(222.2, 84%, 4.9%)",
+    "card_foreground": "hsl(210, 40%, 98%)",
+    "popover": "hsl(222.2, 84%, 4.9%)",
+    "popover_foreground": "hsl(210, 40%, 98%)",
+    "primary": "hsl(217.2, 91.2%, 59.8%)",
+    "primary_foreground": "hsl(210, 40%, 98%)",
+    "secondary": "hsl(217.2, 32.6%, 17.5%)",
+    "secondary_foreground": "hsl(210, 40%, 98%)",
+    "muted": "hsl(217.2, 32.6%, 17.5%)",
+    "muted_foreground": "hsl(215, 20.2%, 65.1%)",
+    "accent": "hsl(217.2, 32.6%, 17.5%)",
+    "accent_foreground": "hsl(210, 40%, 98%)",
+    "destructive": "hsl(0, 84.2%, 60.2%)",
+    "destructive_foreground": "hsl(210, 40%, 98%)",
+    "border": "hsl(217.2, 32.6%, 17.5%)",
+    "input": "hsl(217.2, 32.6%, 17.5%)",
+    "ring": "hsl(224.3, 76.3%, 48%)",
+    "success": "hsl(150, 70%, 40%)",
+    "warning": "hsl(38, 92%, 50%)",
+    "radius": "0.5rem"
+  },
+  "typography": {
+    "headings": {
+      "family": "'Cabinet Grotesk', sans-serif",
+      "weight": "font-bold to font-black",
+      "tracking": "tracking-tight",
+      "h1": "text-4xl sm:text-5xl lg:text-6xl",
+      "h2": "text-2xl sm:text-3xl lg:text-4xl",
+      "h3": "text-xl sm:text-2xl"
+    },
+    "body": {
+      "family": "'Manrope', sans-serif",
+      "weight": "font-normal to font-medium",
+      "base": "text-base",
+      "small": "text-sm"
+    },
+    "numbers": {
+      "family": "'IBM Plex Mono', monospace",
+      "usage": "Mandatory for all R$ values, calculated results, and data table cells.",
+      "weight": "font-semibold to font-bold"
+    },
+    "labels": {
+      "style": "uppercase tracking-[0.2em] text-xs font-bold text-muted-foreground"
+    }
+  },
+  "spacing_and_layout": {
+    "strategy": "The 'Control Room' Grid Protocol (Mode B) for dashboard/fintech density.",
+    "containers": "Use p-8 or p-12 for main card containers to maintain generous internal breathing room.",
+    "wizard_layout": "Center-aligned maximum 800px width for focus during calculation steps. Mobile-first grid-cols-1.",
+    "result_layout": "Bento Grid: grid-cols-1 md:grid-cols-3 lg:grid-cols-4. Use tight gaps (gap-6).",
+    "alignment": "Left-align paragraphs, inputs, and tabular data. Large final result metrics should be centered for impact."
+  },
+  "components": {
+    "header": {
+      "style": "Glassmorphism: sticky top-0 z-50 backdrop-blur-xl bg-background/60 border-b border-border/40. Must contain logo and primary CTA."
+    },
+    "cards": {
+      "style": "Flat solid background (bg-card), sharp/subtle radius (8px), 1px solid border-border. No heavy shadows, use 0_4px_24px_rgba(0,0,0,0.4) if floating."
+    },
+    "inputs_and_sliders": {
+      "inputs": "Use h-14, large text-lg, bg-muted, border-border, focus:ring-2 focus:ring-primary. Prefix R$ styled with text-muted-foreground.",
+      "sliders": "Accentuated thumb with box-shadow glow (shadow-[0_0_10px_rgba(59,130,246,0.5)]), track colored in primary."
+    },
+    "lean_chips": {
+      "style": "Bento-style 2x4 or 4x2 grid of selectable cards. Unselected: bg-transparent, border-border, opacity-70. Selected: bg-primary/10, border-primary, opacity-100, transition-all duration-200."
+    },
+    "buttons": {
+      "primary": "bg-primary text-primary-foreground font-bold h-12 px-8. Hover: lighten hue and add subtle translate-y-[-2px] + shadow-lg.",
+      "secondary": "bg-secondary text-secondary-foreground border border-border"
+    },
+    "tables": {
+      "style": "border-collapse. border-b border-border/40 on rows. Right-aligned numerical columns using IBM Plex Mono."
+    },
+    "charts": {
+      "library": "Recharts",
+      "theming": "Transparent backgrounds. Hide axis lines (axisLine={false}), subtle grid lines (stroke='hsl(217.2, 32.6%, 17.5%)').",
+      "donut": "Produced (Primary Blue) vs Wasted (Destructive Red).",
+      "line": "Historical (Blue solid) vs Reference (Muted dashed).",
+      "bar": "Lean Categories (gradient or solid primary)."
+    }
+  },
+  "animations": {
+    "library": "framer-motion for layout, react-countup for numbers.",
+    "count_up": "Mandatory on final results. The 'R$ X' lost per month/year MUST animate from 0 to value over 2.5 seconds.",
+    "step_transitions": "Fade-in and slide-up: initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}.",
+    "hover": "translate-y-[-2px] on interactive cards and buttons."
+  },
+  "icon_library": "@phosphor-icons/react (Weight: 'duotone' for large icons, 'regular' for UI elements). Install via: yarn add @phosphor-icons/react",
+  "media": {
+    "background_image": "https://images.pexels.com/photos/29333569/pexels-photo-29333569.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=1024&w=1536",
+    "background_usage": "Set to absolute, top-0, w-full, h-[60vh], object-cover, opacity-10, pointer-events-none, mix-blend-screen. Use a mask-image linear-gradient(to bottom, black, transparent) to fade it out."
+  },
+  "instructions_to_main_agent": [
+    "1. FRAMEWORK: Use React, Tailwind CSS, Recharts, Framer Motion, and Phosphor Icons.",
+    "2. FONTS: Import 'Cabinet Grotesk', 'Manrope', and 'IBM Plex Mono' via Google Fonts / Fontshare.",
+    "3. WIZARD LOGIC (4 Steps):",
+    "   - Step 1 (Avaliação Histórica): Inputs for Valor Produzido (Média) and Valor Ideal/Referência. Optional: A table to input 3-6 months of R$ data to calculate the average gap.",
+    "   - Step 2 (Tipos de Perdas Lean): Select from the 8 Lean wastes (Defeito, Superprodução, Espera, Recursos, Transporte, Estoque, Movimentação, Superprocessamento).",
+    "   - Step 3 (Custos): For each selected waste, allow user to input an estimated monthly cost (R$) that contributes to the GAP.",
+    "   - Step 4 (Diagnóstico): The 'Slap in the face' screen. Show Total Monthly Loss (CountUp, huge text in red/destructive color), Annualized Loss (x12), and % of revenue. Use Recharts for visual impact.",
+    "4. EMOTIONAL IMPACT: In Step 4, use phrases like 'Você está perdendo R$ X sem perceber' and 'Isso representa [X]% do seu faturamento jogado no lixo'.",
+    "5. STATE MANAGEMENT: Use a React context or complex state object to hold values across steps and allow navigating back/forth.",
+    "6. TESTING IDs: EVERY interactive element MUST have a `data-testid` (e.g., `data-testid='next-step-button'`, `data-testid='waste-card-defeito'`).",
+    "7. RESPONSIVENESS: Ensure charts and tables scroll horizontally or stack on mobile viewports (max-w-full overflow-x-auto).",
+    "8. SHADCN (If used): Override default rounded-md to match the 8px radius defined in the system. Use flat styling, not pure black shadows."
+  ]
+}
