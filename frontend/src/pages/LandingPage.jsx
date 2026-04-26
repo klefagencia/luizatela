@@ -200,6 +200,16 @@ export default function LandingPage() {
                     </div>
                   ))}
                 </div>
+                <a
+                  href="https://luizatela.aksgestao.com/calculadora/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-testid="luiz-cta-link"
+                  className="inline-flex items-center gap-2 mt-8 h-12 px-6 rounded-md bg-emerald-500 hover:bg-emerald-400 text-emerald-950 font-bold text-sm transition-all hover:translate-y-[-2px] hover:shadow-lg group"
+                >
+                  Conheça o trabalho do Luiz Atela
+                  <ArrowRight size={18} weight="bold" className="group-hover:translate-x-1 transition-transform" />
+                </a>
               </motion.div>
             </div>
           </div>
