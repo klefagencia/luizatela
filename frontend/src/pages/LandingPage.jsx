@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   ArrowRight, Lightning, ChartBar, Coins, Warning,
-  Factory, Stack, Target,
+  Factory, Stack, Target, Medal, CheckCircle,
 } from "@phosphor-icons/react";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
