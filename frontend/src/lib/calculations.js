@@ -1,21 +1,18 @@
-// Faithful to the original spreadsheet's Lean Manufacturing logic.
-// Performance Atual = AVG(historical productivity %)
-// GAP de Eficiência = Valor de Referência - Performance Atual
-// Per cost item:
-//   Perda Atual    = Volume × Custo Unitário × (1 - PerfAtual/100)
-//   Perda Refer.   = Volume × Custo Unitário × (1 - Ref/100)
-//   Perda Mensal   = Perda Atual - Perda Referência
-//   Perda Anual    = Mensal × 12
+// NEW formula aligned with Luiz's meeting notes:
+// Performance Atual = AVG(historical points where included=true)
+// GAP = |Benchmark - Performance Atual|  (bidirectional, always positive)
+// Impacto Mensal = Volume × (GAP/100) × Σ(unit costs of identified losses)
+// Impacto Anual  = Impacto Mensal × 12
 
 export const LEAN_WASTES = [
-  { id: "DEFEITO", label: "Defeito", desc: "Produtos/serviços fora da especificação" },
-  { id: "SUPERPRODUCAO", label: "Superprodução", desc: "Produzir mais ou antes do necessário" },
-  { id: "ESPERA", label: "Espera", desc: "Tempo ocioso de pessoas, máquinas ou material" },
-  { id: "RECURSOS", label: "Recursos", desc: "Uso ineficiente de matéria-prima, energia, mão-de-obra" },
-  { id: "TRANSPORTE", label: "Transporte", desc: "Movimentação desnecessária de produtos/material" },
-  { id: "ESTOQUE", label: "Estoque", desc: "Inventário em excesso (matéria-prima, WIP, acabado)" },
-  { id: "MOVIMENTACAO", label: "Movimentação", desc: "Deslocamentos desnecessários de pessoas" },
-  { id: "SUPERPROCESSAMENTO", label: "Superprocessamento", desc: "Trabalho além do necessário pelo cliente" },
+  { id: "DEFEITO", label: "Defeito", desc: "Produtos/serviços fora da especificação", example: "Ex: refugo, retrabalho, devolução" },
+  { id: "SUPERPRODUCAO", label: "Superprodução", desc: "Produzir mais ou antes do necessário", example: "Ex: lote grande que fica parado" },
+  { id: "ESPERA", label: "Espera", desc: "Tempo ocioso de pessoas, máquinas ou material", example: "Ex: máquina parada aguardando MP" },
+  { id: "RECURSOS", label: "Recursos", desc: "Uso ineficiente de matéria-prima, energia, mão-de-obra", example: "Ex: sobra de insumo, horas extras" },
+  { id: "TRANSPORTE", label: "Transporte", desc: "Movimentação desnecessária de produtos/material", example: "Ex: perda na entrega do produto" },
+  { id: "ESTOQUE", label: "Estoque", desc: "Inventário em excesso (MP, WIP, acabado)", example: "Ex: perda ao guardar material" },
+  { id: "MOVIMENTACAO", label: "Movimentação", desc: "Deslocamentos desnecessários de pessoas", example: "Ex: operador caminhando até almoxarifado" },
+  { id: "SUPERPROCESSAMENTO", label: "Superprocessamento", desc: "Trabalho além do necessário pelo cliente", example: "Ex: inspeção duplicada, polimento extra" },
 ];
 
 export function average(arr) {
@@ -25,8 +22,15 @@ export function average(arr) {
 
 export function computePerformanceAtual(historical, override) {
   if (override !== null && override !== undefined && override !== "") return Number(override);
-  const vals = (historical || []).map((p) => Number(p.value || 0));
+  const included = (historical || []).filter((p) => p.included !== false);
+  const source = included.length > 0 ? included : (historical || []);
+  const vals = source.map((p) => Number(p.value || 0));
   return average(vals);
+}
+
+export function computeGap(benchmark, performance) {
+  // Bidirectional — always returns absolute difference
+  return Math.abs(Number(benchmark || 0) - Number(performance || 0));
 }
 
 export function computeAll({
@@ -34,46 +38,46 @@ export function computeAll({
   performanceAtualOverride = null,
   valorReferencia = 0,
   volumePeriodo = 0,
-  revenueMonthly = 0,
-  costItems = [],
+  lossItems = [],
 }) {
   const perf = computePerformanceAtual(historical, performanceAtualOverride);
   const ref = Number(valorReferencia || 0);
-  const gap = ref - perf;
+  const gap = computeGap(ref, perf);
+  const gapDirection = ref >= perf ? "below_ref" : "above_ref"; // are we below or above the benchmark?
   const volume = Number(volumePeriodo || 0);
 
-  const items = costItems.map((it) => {
+  // Σ unit costs of all loss items (specific losses identified)
+  const somaPerdas = lossItems.reduce((s, it) => s + Number(it.unit_cost || 0), 0);
+
+  // Impact formula: Volume × (GAP/100) × Σ unit costs
+  const impactoMensal = volume * (gap / 100) * somaPerdas;
+  const impactoAnual = impactoMensal * 12;
+
+  // Per-item contribution (proportional to its unit cost share)
+  const items = lossItems.map((it) => {
     const unit = Number(it.unit_cost || 0);
-    const perdaAtual = volume * unit * Math.max(0, 1 - perf / 100);
-    const perdaRef = volume * unit * Math.max(0, 1 - ref / 100);
-    const perdaMensal = Math.max(0, perdaAtual - perdaRef);
-    const perdaAnual = perdaMensal * 12;
+    const share = somaPerdas > 0 ? unit / somaPerdas : 0;
+    const impactoItemMensal = impactoMensal * share;
+    const impactoItemAnual = impactoItemMensal * 12;
     return {
       ...it,
-      perda_atual: perdaAtual,
-      perda_referencia: perdaRef,
-      perda_real_mensal: perdaMensal,
-      perda_real_anual: perdaAnual,
+      impacto_mensal: impactoItemMensal,
+      impacto_anual: impactoItemAnual,
     };
   });
 
-  const totalAtual = items.reduce((s, i) => s + i.perda_atual, 0);
-  const totalRef = items.reduce((s, i) => s + i.perda_referencia, 0);
-  const totalMensal = Math.max(0, totalAtual - totalRef);
-  const totalAnual = totalMensal * 12;
-
+  // Aggregate by Lean category
   const perdasPorCategoria = LEAN_WASTES.reduce((acc, w) => {
     acc[w.id] = items
       .filter((i) => i.category === w.id)
-      .reduce((s, i) => s + i.perda_real_anual, 0);
+      .reduce((s, i) => s + i.impacto_anual, 0);
     return acc;
   }, {});
+  perdasPorCategoria["_SEM_CATEGORIA"] = items
+    .filter((i) => !i.category)
+    .reduce((s, i) => s + i.impacto_anual, 0);
 
-  let pctFaturamento = null;
-  if (revenueMonthly && revenueMonthly > 0) {
-    pctFaturamento = (totalMensal / revenueMonthly) * 100;
-  }
-
+  // Waste level — based on GAP magnitude (as % points)
   let nivel = "ok";
   if (gap > 20) nivel = "critico";
   else if (gap > 5) nivel = "atencao";
@@ -82,14 +86,13 @@ export function computeAll({
     performance_atual: perf,
     valor_referencia: ref,
     gap_eficiencia: gap,
+    gap_direction: gapDirection,
     volume_periodo: volume,
+    soma_perdas: somaPerdas,
     items,
-    total_perda_atual_mensal: totalAtual,
-    total_perda_referencia_mensal: totalRef,
-    total_perda_real_mensal: totalMensal,
-    total_perda_real_anual: totalAnual,
+    impacto_mensal: impactoMensal,
+    impacto_anual: impactoAnual,
     perdas_por_categoria: perdasPorCategoria,
-    pct_faturamento: pctFaturamento,
     nivel_desperdicio: nivel,
   };
 }
@@ -112,7 +115,15 @@ export function formatBRLDecimal(n) {
   }).format(n);
 }
 
+export function formatNum(n, digits = 2) {
+  if (!isFinite(n)) n = 0;
+  return new Intl.NumberFormat("pt-BR", {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  }).format(n);
+}
+
 export function formatPct(n, digits = 2) {
   if (!isFinite(n)) n = 0;
-  return `${n.toFixed(digits).replace(".", ",")}%`;
+  return `${formatNum(n, digits)}%`;
 }

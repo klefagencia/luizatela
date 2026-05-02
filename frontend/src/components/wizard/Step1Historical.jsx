@@ -1,21 +1,20 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Plus, Trash, ChartLineUp, Sparkle } from "@phosphor-icons/react";
+import { Plus, Trash, ChartLineUp, Sparkle, Check } from "@phosphor-icons/react";
 import { useCalculator } from "@/contexts/CalculatorContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
-  ResponsiveContainer, LineChart, Line, ReferenceLine, Tooltip, XAxis, YAxis, CartesianGrid,
+  ResponsiveContainer, LineChart, Line, Tooltip, XAxis, YAxis, CartesianGrid,
 } from "recharts";
-import { formatPct } from "@/lib/calculations";
+import { formatNum } from "@/lib/calculations";
 
 export default function Step1Historical() {
   const {
     historical, setHistorical,
     performanceAtualOverride, setPerformanceAtualOverride,
-    valorReferencia, setValorReferencia,
     result,
   } = useCalculator();
 
@@ -24,26 +23,37 @@ export default function Step1Historical() {
     next[idx] = { ...next[idx], value: Number(value) };
     setHistorical(next);
   };
-
   const updateLabel = (idx, label) => {
     const next = [...historical];
     next[idx] = { ...next[idx], label };
     setHistorical(next);
   };
-
-  const addPoint = () => {
-    setHistorical([...historical, { label: `Mês ${historical.length + 1}`, value: 0 }]);
+  const toggleIncluded = (idx) => {
+    const next = [...historical];
+    next[idx] = { ...next[idx], included: next[idx].included === false ? true : false };
+    setHistorical(next);
   };
-
+  const selectAll = (value) => {
+    setHistorical(historical.map((p) => ({ ...p, included: value })));
+  };
+  const addPoint = () => {
+    setHistorical([
+      ...historical,
+      { label: `Mês ${historical.length + 1}`, value: 0, included: true },
+    ]);
+  };
   const removePoint = (idx) => {
     setHistorical(historical.filter((_, i) => i !== idx));
   };
 
   const chartData = historical.map((p) => ({
     label: p.label,
-    Produtividade: Number(p.value || 0),
-    Referencia: Number(valorReferencia || 0),
+    Eficiencia: Number(p.value || 0),
+    Performance: result.performance_atual,
+    included: p.included !== false,
   }));
+
+  const includedCount = historical.filter((p) => p.included !== false).length;
 
   return (
     <motion.div
@@ -54,9 +64,11 @@ export default function Step1Historical() {
     >
       <div>
         <div className="text-xs uppercase tracking-[0.25em] text-primary font-bold mb-2">Etapa 01 · Avaliação Histórica</div>
-        <h2 className="font-display font-black text-3xl lg:text-4xl tracking-tight">Sua produtividade ao longo do tempo</h2>
+        <h2 className="font-display font-black text-3xl lg:text-4xl tracking-tight">Sua eficiência ao longo do tempo</h2>
         <p className="text-muted-foreground mt-3 max-w-2xl text-sm leading-relaxed">
-          Insira os dados históricos de produtividade (%) do seu processo. A média será sua <span className="text-foreground font-semibold">Performance Atual</span>. Em seguida defina o <span className="text-foreground font-semibold">Valor de Referência</span> ideal para calcular o GAP de eficiência.
+          Insira a série temporal do seu indicador de <span className="text-foreground font-semibold">eficiência</span> (produção, % refugo, volume de vendas etc).
+          Use as caixas de seleção na tabela abaixo para escolher <span className="text-foreground font-semibold">apenas o período relevante</span> (útil quando há mudança de patamar no gráfico).
+          A média dos pontos selecionados é a sua <span className="text-foreground font-semibold">Performance Atual</span>.
         </p>
       </div>
 
@@ -65,18 +77,25 @@ export default function Step1Historical() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <ChartLineUp size={18} weight="duotone" className="text-primary" />
-            <span className="text-xs uppercase tracking-[0.2em] font-bold text-muted-foreground">Série Temporal</span>
+            <span className="text-xs uppercase tracking-[0.2em] font-bold text-muted-foreground">Série Temporal · Eficiência</span>
           </div>
           <div className="text-xs font-mono-num text-muted-foreground">
-            {historical.length} pontos
+            {includedCount}/{historical.length} pontos selecionados
           </div>
         </div>
         <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 8, right: 16, bottom: 0, left: -16 }}>
+            <LineChart data={chartData} margin={{ top: 8, right: 16, bottom: 0, left: -8 }}>
               <CartesianGrid stroke="hsl(217.2, 32.6%, 17.5%)" strokeDasharray="2 4" vertical={false} />
               <XAxis dataKey="label" stroke="hsl(215, 20.2%, 55%)" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-              <YAxis stroke="hsl(215, 20.2%, 55%)" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+              <YAxis
+                stroke="hsl(215, 20.2%, 55%)"
+                tick={{ fontSize: 10 }}
+                axisLine={false}
+                tickLine={false}
+                domain={[(dataMin) => Math.max(0, Math.floor((dataMin ?? 0) * 0.9)), (dataMax) => Math.ceil((dataMax ?? 0) * 1.1)]}
+                allowDecimals
+              />
               <Tooltip
                 contentStyle={{
                   background: "hsl(222.2, 47%, 7%)",
@@ -88,7 +107,7 @@ export default function Step1Historical() {
               />
               <Line
                 type="monotone"
-                dataKey="Referencia"
+                dataKey="Performance"
                 stroke="hsl(150, 70%, 40%)"
                 strokeWidth={1.5}
                 strokeDasharray="6 4"
@@ -96,28 +115,54 @@ export default function Step1Historical() {
               />
               <Line
                 type="monotone"
-                dataKey="Produtividade"
+                dataKey="Eficiencia"
                 stroke="hsl(217.2, 91.2%, 59.8%)"
                 strokeWidth={2.5}
-                dot={{ r: 3, fill: "hsl(217.2, 91.2%, 59.8%)" }}
-                activeDot={{ r: 5 }}
+                dot={(dotProps) => {
+                  const { cx, cy, payload, index } = dotProps;
+                  const isIncluded = payload.included;
+                  return (
+                    <circle
+                      key={index}
+                      cx={cx}
+                      cy={cy}
+                      r={isIncluded ? 4 : 3}
+                      fill={isIncluded ? "hsl(217.2, 91.2%, 59.8%)" : "hsl(222.2, 47%, 9%)"}
+                      stroke="hsl(217.2, 91.2%, 59.8%)"
+                      strokeWidth={1.5}
+                    />
+                  );
+                }}
               />
             </LineChart>
           </ResponsiveContainer>
         </div>
+        <div className="mt-3 flex items-center gap-4 text-[10px] uppercase tracking-widest text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-primary"></span> Eficiência (pontos selecionados)
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full border border-primary bg-card"></span> Não considerados
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="w-3 h-[2px] bg-emerald-500"></span> Performance Atual (média)
+          </span>
+        </div>
       </div>
 
-      {/* Performance Atual + Referência */}
+      {/* Performance Atual */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="bg-card border border-border rounded-xl p-6">
+        <div className="bg-card border border-primary/40 rounded-xl p-6">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">Performance Atual</Label>
+              <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-primary">Performance Atual</Label>
               <div className="font-mono-num font-bold text-4xl mt-2 text-foreground">
-                {formatPct(result.performance_atual, 2)}
+                {formatNum(result.performance_atual, 2)}
               </div>
               <p className="text-xs text-muted-foreground mt-1.5">
-                {performanceAtualOverride ? "Valor manual" : "Calculado: média da série acima"}
+                {performanceAtualOverride !== null && performanceAtualOverride !== ""
+                  ? "Valor manual"
+                  : `Média dos ${includedCount} ponto(s) selecionado(s)`}
               </p>
             </div>
             <Sparkle size={20} weight="duotone" className="text-primary" />
@@ -126,55 +171,39 @@ export default function Step1Historical() {
             data-testid="input-perf-override"
             type="number"
             step="0.01"
-            placeholder="Sobrescrever (opcional)"
+            placeholder="Sobrescrever manualmente (opcional)"
             value={performanceAtualOverride ?? ""}
             onChange={(e) => setPerformanceAtualOverride(e.target.value === "" ? null : e.target.value)}
             className="bg-muted border-border h-11 font-mono-num"
           />
         </div>
 
-        <div className="bg-card border border-primary/40 rounded-xl p-6">
-          <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-primary">Valor de Referência (%)</Label>
-          <div className="flex items-baseline gap-3 mt-2">
-            <div className="font-mono-num font-bold text-4xl text-primary">{Number(valorReferencia || 0).toFixed(2)}</div>
-            <div className="text-sm text-muted-foreground">%</div>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1.5 mb-5">Performance ideal do seu processo</p>
-          <div className="slider-glow">
-            <Slider
-              data-testid="slider-referencia"
-              value={[Number(valorReferencia)]}
-              min={0}
-              max={100}
-              step={0.5}
-              onValueChange={([v]) => setValorReferencia(v)}
-            />
-          </div>
-          <div className="flex justify-between mt-2 text-[10px] font-mono-num text-muted-foreground">
-            <span>0%</span><span>50%</span><span>100%</span>
-          </div>
-        </div>
-      </div>
-
-      {/* GAP banner */}
-      <div className={`rounded-xl border p-5 flex items-center justify-between ${
-        result.nivel_desperdicio === "critico" ? "bg-destructive/10 border-destructive/40" :
-        result.nivel_desperdicio === "atencao" ? "bg-yellow-500/10 border-yellow-500/40" :
-        "bg-emerald-500/10 border-emerald-500/40"
-      }`} data-testid="gap-banner">
-        <div>
-          <div className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">GAP de Eficiência</div>
-          <div className="font-mono-num font-bold text-3xl mt-1">{formatPct(result.gap_eficiencia, 2)}</div>
-        </div>
-        <div className="text-right">
-          <div className="text-xs uppercase font-bold tracking-wider mb-1">
-            {result.nivel_desperdicio === "critico" ? "Crítico" :
-             result.nivel_desperdicio === "atencao" ? "Atenção" : "OK"}
-          </div>
-          <div className="text-xs text-muted-foreground">
-            {result.nivel_desperdicio === "critico" && "GAP > 20% — alto desperdício"}
-            {result.nivel_desperdicio === "atencao" && "GAP entre 5%-20%"}
-            {result.nivel_desperdicio === "ok" && "GAP ≤ 5% — saudável"}
+        <div className="bg-card border border-border rounded-xl p-6">
+          <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">Dica · Seleção de Período</Label>
+          <p className="text-sm text-foreground mt-2 leading-relaxed">
+            Quando há uma <span className="font-semibold">mudança de patamar</span> no gráfico (ex: melhoria no meio do período), desmarque os pontos antigos para que a Performance Atual reflita apenas o período relevante.
+          </p>
+          <div className="flex gap-2 mt-4">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => selectAll(true)}
+              data-testid="select-all-historical"
+              className="h-8 border-border"
+            >
+              <Check size={14} weight="bold" /> Selecionar todos
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => selectAll(false)}
+              data-testid="deselect-all-historical"
+              className="h-8 border-border"
+            >
+              Limpar seleção
+            </Button>
           </div>
         </div>
       </div>
@@ -194,50 +223,62 @@ export default function Step1Historical() {
             <Plus size={14} weight="bold" /> Adicionar mês
           </Button>
         </div>
-        <div className="max-h-72 overflow-y-auto">
+        <div className="max-h-80 overflow-y-auto">
           <table className="w-full text-sm">
             <thead className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground bg-muted/40 sticky top-0 backdrop-blur">
               <tr>
+                <th className="w-14 text-center font-bold p-3">Usar</th>
                 <th className="text-left font-bold p-3 w-1/2">Período</th>
-                <th className="text-right font-bold p-3">Produtividade (%)</th>
+                <th className="text-right font-bold p-3">Eficiência</th>
                 <th className="w-12"></th>
               </tr>
             </thead>
             <tbody>
-              {historical.map((p, i) => (
-                <tr key={i} className="border-t border-border/40 hover:bg-muted/20">
-                  <td className="p-2">
-                    <Input
-                      data-testid={`historical-label-${i}`}
-                      value={p.label}
-                      onChange={(e) => updateLabel(i, e.target.value)}
-                      className="bg-transparent border-transparent hover:border-border h-9 text-sm"
-                    />
-                  </td>
-                  <td className="p-2 text-right">
-                    <Input
-                      data-testid={`historical-value-${i}`}
-                      type="number"
-                      step="0.01"
-                      value={p.value}
-                      onChange={(e) => updatePoint(i, e.target.value)}
-                      className="bg-transparent border-transparent hover:border-border h-9 text-right font-mono-num text-sm"
-                    />
-                  </td>
-                  <td className="p-2 text-center">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removePoint(i)}
-                      data-testid={`remove-historical-${i}`}
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                    >
-                      <Trash size={14} />
-                    </Button>
-                  </td>
-                </tr>
-              ))}
+              {historical.map((p, i) => {
+                const included = p.included !== false;
+                return (
+                  <tr key={i} className={`border-t border-border/40 hover:bg-muted/20 ${!included ? "opacity-50" : ""}`}>
+                    <td className="p-2 text-center">
+                      <Checkbox
+                        data-testid={`historical-check-${i}`}
+                        checked={included}
+                        onCheckedChange={() => toggleIncluded(i)}
+                        className="mx-auto"
+                      />
+                    </td>
+                    <td className="p-2">
+                      <Input
+                        data-testid={`historical-label-${i}`}
+                        value={p.label}
+                        onChange={(e) => updateLabel(i, e.target.value)}
+                        className="bg-transparent border-transparent hover:border-border h-9 text-sm"
+                      />
+                    </td>
+                    <td className="p-2 text-right">
+                      <Input
+                        data-testid={`historical-value-${i}`}
+                        type="number"
+                        step="0.01"
+                        value={p.value}
+                        onChange={(e) => updatePoint(i, e.target.value)}
+                        className="bg-transparent border-transparent hover:border-border h-9 text-right font-mono-num text-sm"
+                      />
+                    </td>
+                    <td className="p-2 text-center">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removePoint(i)}
+                        data-testid={`remove-historical-${i}`}
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      >
+                        <Trash size={14} />
+                      </Button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

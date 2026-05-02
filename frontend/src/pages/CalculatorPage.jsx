@@ -3,8 +3,8 @@ import { ArrowLeft, ArrowRight } from "@phosphor-icons/react";
 import Header from "@/components/Header";
 import StepIndicator from "@/components/StepIndicator";
 import Step1Historical from "@/components/wizard/Step1Historical";
-import Step2Wastes from "@/components/wizard/Step2Wastes";
-import Step3Costs from "@/components/wizard/Step3Costs";
+import Step2Benchmark from "@/components/wizard/Step2Wastes";
+import Step3LossesCosts from "@/components/wizard/Step3Costs";
 import Step4Diagnostic from "@/components/wizard/Step4Diagnostic";
 import { useCalculator } from "@/contexts/CalculatorContext";
 import { Button } from "@/components/ui/button";
@@ -12,9 +12,9 @@ import { formatBRL } from "@/lib/calculations";
 
 const steps = [
   { id: "historical", title: "Avaliação Histórica" },
-  { id: "wastes", title: "Tipos de Perdas" },
-  { id: "costs", title: "Custos & Volume" },
-  { id: "diagnostic", title: "Diagnóstico" },
+  { id: "benchmark", title: "Benchmark" },
+  { id: "losses", title: "Perdas e Custos" },
+  { id: "conversion", title: "Conversão" },
 ];
 
 export default function CalculatorPage() {
@@ -45,9 +45,9 @@ export default function CalculatorPage() {
         {step < 3 && (
           <div className="mb-8 inline-flex items-center gap-3 px-4 py-2.5 rounded-full border border-destructive/30 bg-destructive/5">
             <span className="w-2 h-2 rounded-full bg-destructive animate-pulse" />
-            <span className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">Perda anual estimada</span>
+            <span className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">Impacto anual estimado</span>
             <span className="font-mono-num font-bold text-destructive" data-testid="live-loss-pill">
-              {formatBRL(result.total_perda_real_anual)}
+              {formatBRL(result.impacto_anual)}
             </span>
           </div>
         )}
@@ -55,8 +55,8 @@ export default function CalculatorPage() {
         {/* Step content */}
         <div className="bg-card/60 border border-border rounded-2xl p-6 lg:p-10 backdrop-blur" data-testid="wizard-card">
           {step === 0 && <Step1Historical />}
-          {step === 1 && <Step2Wastes />}
-          {step === 2 && <Step3Costs />}
+          {step === 1 && <Step2Benchmark />}
+          {step === 2 && <Step3LossesCosts />}
           {step === 3 && <Step4Diagnostic />}
         </div>
 
