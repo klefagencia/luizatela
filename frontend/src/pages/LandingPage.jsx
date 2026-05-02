@@ -44,14 +44,14 @@ export default function LandingPage() {
               Quanto dinheiro você está
               <br />
               <span className="relative inline-block">
-                <span className="bg-gradient-to-r from-primary via-blue-400 to-blue-200 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-primary via-blue-400 to-blue-200 bg-clip-text text-transparent">
                   perdendo sem perceber?
                 </span>
               </span>
             </h1>
             <p className="text-lg lg:text-xl text-muted-foreground max-w-2xl leading-relaxed mb-10 font-light">
               Descubra com alguns dados o impacto financeiro real do desperdício no seu negócio — baseado nos
-              <span className="text-foreground font-medium"> 8 tipos de perda do Lean Manufacturing</span>.
+              <span className="text-foreground font-medium"> 8 tipos de desperdício do Lean Manufacturing</span>.
             </p>
             <div className="flex flex-wrap items-center gap-4">
               <Link to="/calculadora" data-testid="hero-cta-button">
@@ -90,21 +90,21 @@ export default function LandingPage() {
                 },
                 {
                   k: "8",
-                  v: "Tipos de Perda",
+                  v: "Tipos de Desperdícios",
                   icon: Stack,
                   desc: "Os 8 desperdícios clássicos do Lean Manufacturing que toda operação carrega sem perceber.",
                 },
                 {
                   k: "R$",
-                  v: "Impacto Anual",
+                  v: "Custos Operacionais",
                   icon: Coins,
                   desc: "A soma real do desperdício no seu bolso em 12 meses — o número que dói ver.",
                 },
                 {
                   k: "%",
-                  v: "do Faturamento",
+                  v: "Produção",
                   icon: ChartBar,
-                  desc: "Quanto da sua receita está literalmente sendo queimada todos os meses.",
+                  desc: "Quanto do seu volume produzido está literalmente sendo queimado todos os meses.",
                 },
               ].map((s, i) => (
                 <motion.div
@@ -141,18 +141,15 @@ export default function LandingPage() {
           <div className="mb-16 max-w-2xl">
             <div className="text-xs uppercase tracking-[0.25em] text-primary font-bold mb-3">Metodologia</div>
             <h2 className="font-display font-black text-4xl lg:text-5xl tracking-tight leading-[1.05]">
-              Da planilha técnica<br />ao diagnóstico visual.
+              As 4 etapas<br />do diagnóstico.
             </h2>
-            <p className="text-muted-foreground mt-5 text-base leading-relaxed">
-              A calculadora segue fielmente a lógica de avaliação de perdas Lean: avaliação histórica de eficiência, GAP em relação ao benchmark, perdas específicas classificadas nos 8 tipos Lean e conversão em impacto financeiro.
-            </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { n: "01", t: "Avaliação Histórica", d: "Insira a série temporal do seu indicador de eficiência e selecione o período relevante para definir a Performance Atual.", icon: ChartBar },
-              { n: "02", t: "Benchmark", d: "Informe o valor de referência da sua performance ideal e veja o GAP de eficiência calculado automaticamente.", icon: Target },
-              { n: "03", t: "Perdas e Custos", d: "Identifique as perdas específicas do seu processo (dentro dos 8 tipos Lean) e seus custos unitários.", icon: Factory },
-              { n: "04", t: "Conversão", d: "Pondere as perdas pelo volume de produção e veja o impacto financeiro anual do desperdício.", icon: Warning },
+              { n: "01", t: "Avaliação Histórica", d: "Aprenda a analisar o seu histórico de eficiência para descobrir a sua performance atual.", icon: ChartBar },
+              { n: "02", t: "Benchmark", d: "Pesquise e descubra qual é o valor de referência da sua performance ideal e calcule o seu GAP de Eficiência.", icon: Target },
+              { n: "03", t: "Perdas e Custos", d: "Por meio da lista dos 8 desperdícios Lean identifique as perdas de processo envolvidas e seus custos unitários.", icon: Factory },
+              { n: "04", t: "Conversão", d: "Pondere as perdas identificadas pelo volume de produção e calcule o impacto financeiro anual do desperdício em sua operação.", icon: Warning },
             ].map((step, i) => (
               <motion.div
                 key={i}
@@ -233,8 +230,7 @@ export default function LandingPage() {
                 </p>
                 <div className="flex flex-wrap gap-3 mt-6">
                   {[
-                    { icon: CheckCircle, t: "Green Belt" },
-                    { icon: CheckCircle, t: "Black Belt" },
+                    { icon: CheckCircle, t: "Master Black Belt" },
                     { icon: CheckCircle, t: "300+ projetos" },
                     { icon: CheckCircle, t: "25+ anos" },
                   ].map((c, i) => (
@@ -267,7 +263,7 @@ export default function LandingPage() {
           <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
               <div className="text-xs uppercase tracking-[0.25em] text-primary font-bold mb-3">Lean Manufacturing</div>
-              <h2 className="font-display font-black text-4xl lg:text-5xl tracking-tight">Os 8 tipos de perda.</h2>
+              <h2 className="font-display font-black text-4xl lg:text-5xl tracking-tight">Os 8 tipos de desperdícios.</h2>
             </div>
             <p className="text-muted-foreground max-w-md text-sm leading-relaxed">
               Toda ineficiência do seu processo se enquadra em uma destas categorias. Identificá-las é o primeiro passo para eliminá-las.
@@ -303,7 +299,7 @@ export default function LandingPage() {
                   Pronto para o<br />
                   <span className="text-primary">tapa na cara financeiro?</span>
                 </h3>
-                <p className="text-muted-foreground">Em alguns minutos você descobre quanto seu negócio está perdendo.</p>
+                <p className="text-muted-foreground">De forma rápida e direta você descobre quanto seu negócio está perdendo.</p>
               </div>
               <Link to="/calculadora" data-testid="footer-cta-button">
                 <Button className="h-14 px-8 text-base font-bold group">
