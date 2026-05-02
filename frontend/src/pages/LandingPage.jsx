@@ -72,20 +72,67 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="mt-20 grid grid-cols-2 lg:grid-cols-4 gap-px bg-border/40 border border-border/40 rounded-xl overflow-hidden"
+            className="mt-20"
           >
-            {[
-              { k: "GAP", v: "Eficiência", icon: Target },
-              { k: "8", v: "Tipos de Perda", icon: Stack },
-              { k: "R$", v: "Perda Anual", icon: Coins },
-              { k: "%", v: "Faturamento", icon: ChartBar },
-            ].map((s, i) => (
-              <div key={i} className="bg-card p-6 lg:p-8">
-                <s.icon size={20} weight="duotone" className="text-primary mb-3" />
-                <div className="font-display font-black text-3xl lg:text-4xl tracking-tight">{s.k}</div>
-                <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground mt-1">{s.v}</div>
-              </div>
-            ))}
+            <div className="flex items-center gap-2 mb-5">
+              <div className="w-1 h-4 bg-primary rounded-full" />
+              <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-muted-foreground">
+                Embasamento · Pilares da metodologia
+              </span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {[
+                {
+                  k: "GAP",
+                  v: "Eficiência",
+                  icon: Target,
+                  desc: "Distância entre a sua performance atual e o benchmark ideal. É o tamanho do problema em pontos.",
+                },
+                {
+                  k: "8",
+                  v: "Tipos de Perda",
+                  icon: Stack,
+                  desc: "Os 8 desperdícios clássicos do Lean Manufacturing que toda operação carrega sem perceber.",
+                },
+                {
+                  k: "R$",
+                  v: "Impacto Anual",
+                  icon: Coins,
+                  desc: "A soma real do desperdício no seu bolso em 12 meses — o número que dói ver.",
+                },
+                {
+                  k: "%",
+                  v: "do Faturamento",
+                  icon: ChartBar,
+                  desc: "Quanto da sua receita está literalmente sendo queimada todos os meses.",
+                },
+              ].map((s, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 12 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: i * 0.08 }}
+                  className="bg-card border border-border rounded-xl p-6 hover:border-primary/40 hover:translate-y-[-2px] transition-all group"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <s.icon size={22} weight="duotone" className="text-primary group-hover:scale-110 transition-transform" />
+                    <span className="font-mono-num text-[10px] text-muted-foreground tracking-widest">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                  </div>
+                  <div className="font-display font-black text-4xl lg:text-5xl tracking-tight leading-none">
+                    {s.k}
+                  </div>
+                  <div className="text-xs uppercase tracking-[0.2em] font-bold text-foreground mt-2">
+                    {s.v}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-3 leading-relaxed">
+                    {s.desc}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
           </motion.div>
         </section>
 
@@ -97,15 +144,15 @@ export default function LandingPage() {
               Da planilha técnica<br />ao diagnóstico visual.
             </h2>
             <p className="text-muted-foreground mt-5 text-base leading-relaxed">
-              A calculadora segue fielmente a lógica de avaliação de perdas Lean: avaliação histórica de produtividade, GAP de eficiência, custos por item e classificação nos 8 tipos de perda.
+              A calculadora segue fielmente a lógica de avaliação de perdas Lean: avaliação histórica de eficiência, GAP em relação ao benchmark, perdas específicas classificadas nos 8 tipos Lean e conversão em impacto financeiro.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { n: "01", t: "Avaliação Histórica", d: "Insira a série temporal de produtividade (%) e calcule a Performance Atual.", icon: ChartBar },
-              { n: "02", t: "Performance vs Referência", d: "Defina o valor de referência ideal e veja o GAP de eficiência em tempo real.", icon: Target },
-              { n: "03", t: "Custos & Perdas", d: "Adicione itens de custo, volume de produção e classifique nos 8 tipos Lean.", icon: Factory },
-              { n: "04", t: "Diagnóstico", d: "Veja a perda mensal, anual e o % do seu faturamento jogado fora.", icon: Warning },
+              { n: "01", t: "Avaliação Histórica", d: "Insira a série temporal do seu indicador de eficiência e selecione o período relevante para definir a Performance Atual.", icon: ChartBar },
+              { n: "02", t: "Benchmark", d: "Informe o valor de referência da sua performance ideal e veja o GAP de eficiência calculado automaticamente.", icon: Target },
+              { n: "03", t: "Perdas e Custos", d: "Identifique as perdas específicas do seu processo (dentro dos 8 tipos Lean) e seus custos unitários.", icon: Factory },
+              { n: "04", t: "Conversão", d: "Pondere as perdas pelo volume de produção e veja o impacto financeiro anual do desperdício.", icon: Warning },
             ].map((step, i) => (
               <motion.div
                 key={i}
