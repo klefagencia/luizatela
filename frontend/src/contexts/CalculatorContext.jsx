@@ -8,24 +8,34 @@ const monthLabels = [
   "Jul/24", "Ago/24", "Set/24", "Out/24", "Nov/24", "Dez/24",
 ];
 
-const sampleValues = [21.31, 19.62, 18.83, 17.80, 16.91, 18.40, 18.69, 17.64, 16.07, 16.03, 22.56, 18.55];
+// Sample data: Custo variável vs Faturamento (e.g. Mariana case)
+const sampleNumerators = [510000, 520000, 515000, 525000, 530000, 522000, 519000, 528000, 521000, 524000, 532000, 526000];
+const sampleDenominators = [1000000, 1010000, 980000, 1030000, 1020000, 990000, 1015000, 1005000, 985000, 1025000, 1040000, 1010000];
 
 const defaultHistorical = monthLabels.map((label, i) => ({
   label,
-  value: sampleValues[i],
+  numerator: sampleNumerators[i],
+  denominator: sampleDenominators[i],
   included: true,
 }));
 
 export function CalculatorProvider({ children }) {
   const [step, setStep] = useState(0);
+
+  // Step 1
+  const [indicatorName, setIndicatorName] = useState("Custo variável");
+  const [denominatorName, setDenominatorName] = useState("Faturamento");
   const [historical, setHistorical] = useState(defaultHistorical);
   const [performanceAtualOverride, setPerformanceAtualOverride] = useState(null);
-  const [valorReferencia, setValorReferencia] = useState(85);
-  const [volumePeriodo, setVolumePeriodo] = useState(20000);
+
+  // Step 2
+  const [valorReferencia, setValorReferencia] = useState(48);
+
+  // Step 3 (loss items now have ocorrencia_mensal)
   const [lossItems, setLossItems] = useState([
-    { id: crypto.randomUUID(), description: "Perda de matéria-prima por refugo", unit_cost: 12.5, category: "DEFEITO" },
-    { id: crypto.randomUUID(), description: "Tempo de máquina parada aguardando setup", unit_cost: 8.0, category: "ESPERA" },
-    { id: crypto.randomUUID(), description: "Perda de insumo no transporte interno", unit_cost: 3.2, category: "TRANSPORTE" },
+    { id: crypto.randomUUID(), description: "Veículo parado (diária)", unit_cost: 1600, ocorrencia_mensal: 3, category: "ESPERA" },
+    { id: crypto.randomUUID(), description: "Honorário equipe parada", unit_cost: 800, ocorrencia_mensal: 3, category: "ESPERA" },
+    { id: crypto.randomUUID(), description: "Hotel + alimentação extra", unit_cost: 450, ocorrencia_mensal: 3, category: "RECURSOS" },
   ]);
 
   const result = useMemo(
@@ -34,18 +44,18 @@ export function CalculatorProvider({ children }) {
         historical,
         performanceAtualOverride,
         valorReferencia,
-        volumePeriodo,
         lossItems,
       }),
-    [historical, performanceAtualOverride, valorReferencia, volumePeriodo, lossItems]
+    [historical, performanceAtualOverride, valorReferencia, lossItems]
   );
 
   const value = {
     step, setStep,
+    indicatorName, setIndicatorName,
+    denominatorName, setDenominatorName,
     historical, setHistorical,
     performanceAtualOverride, setPerformanceAtualOverride,
     valorReferencia, setValorReferencia,
-    volumePeriodo, setVolumePeriodo,
     lossItems, setLossItems,
     result,
   };

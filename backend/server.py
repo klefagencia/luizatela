@@ -6,7 +6,7 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
-from typing import List, Optional
+from typing import List, Optional, Any
 import uuid
 from datetime import datetime, timezone
 
@@ -37,7 +37,8 @@ LEAN_WASTES = [
 class HistoricalPoint(BaseModel):
     model_config = ConfigDict(extra="ignore")
     label: str
-    value: float
+    numerator: float = 0
+    denominator: float = 0
     included: bool = True
 
 
@@ -45,34 +46,41 @@ class LossItem(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     description: str
-    unit_cost: float
+    unit_cost: float = 0
+    ocorrencia_mensal: float = 1
     category: str = ""  # optional Lean waste id
 
 
 class CalculationInput(BaseModel):
     model_config = ConfigDict(extra="ignore")
+    indicator_name: Optional[str] = None
+    denominator_name: Optional[str] = None
     historical: List[HistoricalPoint] = Field(default_factory=list)
     performance_atual: Optional[float] = None
     valor_referencia: float
-    volume_periodo: float
     loss_items: List[LossItem] = Field(default_factory=list)
 
 
 class LossItemResult(BaseModel):
+    model_config = ConfigDict(extra="ignore")
     id: str
     description: str
     unit_cost: float
+    ocorrencia_mensal: float = 0
     category: str
-    impacto_mensal: float
-    impacto_anual: float
+    custo_mensal: float
+    custo_anual: float
 
 
 class CalculationResult(BaseModel):
+    model_config = ConfigDict(extra="ignore")
     performance_atual: float
     valor_referencia: float
     gap_eficiencia: float
     gap_direction: str
-    volume_periodo: float
+    avg_denominator: float
+    perda_financeira_mensal: float
+    perda_financeira_anual: float
     soma_perdas: float
     items: List[LossItemResult]
     impacto_mensal: float
@@ -96,49 +104,55 @@ class SimulationCreate(BaseModel):
     result: CalculationResult
 
 
+def pct_of(num: float, den: float) -> float:
+    if not den:
+        return 0.0
+    return (num / den) * 100
+
+
 def compute(payload: CalculationInput) -> CalculationResult:
-    # Performance Atual = AVG of included historical points
+    included = [p for p in payload.historical if p.included]
+    source = included if included else list(payload.historical)
+
     if payload.performance_atual is not None:
         perf_atual = float(payload.performance_atual)
-    elif payload.historical:
-        included = [p.value for p in payload.historical if p.included]
-        source = included if included else [p.value for p in payload.historical]
-        perf_atual = sum(source) / len(source) if source else 0.0
     else:
-        perf_atual = 0.0
+        pcts = [pct_of(p.numerator, p.denominator) for p in source]
+        perf_atual = sum(pcts) / len(pcts) if pcts else 0.0
+
+    avg_den = (sum(p.denominator for p in source) / len(source)) if source else 0.0
 
     ref = float(payload.valor_referencia)
-    # Bidirectional GAP (always positive)
     gap = abs(ref - perf_atual)
     gap_direction = "below_ref" if ref >= perf_atual else "above_ref"
 
-    volume = float(payload.volume_periodo or 0)
-    soma_perdas = sum(it.unit_cost for it in payload.loss_items)
-
-    # Impact formula: Volume × (GAP/100) × Σ unit costs
-    impacto_mensal = volume * (gap / 100.0) * soma_perdas
-    impacto_anual = impacto_mensal * 12
+    perda_financeira_mensal = (gap / 100.0) * avg_den
+    perda_financeira_anual = perda_financeira_mensal * 12
 
     items_result: List[LossItemResult] = []
     perdas_cat: dict = {w: 0.0 for w in LEAN_WASTES}
     perdas_cat["_SEM_CATEGORIA"] = 0.0
 
     for it in payload.loss_items:
-        share = (it.unit_cost / soma_perdas) if soma_perdas > 0 else 0.0
-        item_mensal = impacto_mensal * share
-        item_anual = item_mensal * 12
+        custo_mensal = float(it.unit_cost) * float(it.ocorrencia_mensal)
+        custo_anual = custo_mensal * 12
         items_result.append(LossItemResult(
             id=it.id,
             description=it.description,
             unit_cost=it.unit_cost,
+            ocorrencia_mensal=it.ocorrencia_mensal,
             category=it.category or "",
-            impacto_mensal=round(item_mensal, 2),
-            impacto_anual=round(item_anual, 2),
+            custo_mensal=round(custo_mensal, 2),
+            custo_anual=round(custo_anual, 2),
         ))
         if it.category and it.category in perdas_cat:
-            perdas_cat[it.category] += item_anual
+            perdas_cat[it.category] += custo_anual
         else:
-            perdas_cat["_SEM_CATEGORIA"] += item_anual
+            perdas_cat["_SEM_CATEGORIA"] += custo_anual
+
+    soma_perdas = sum(i.custo_mensal for i in items_result)
+    impacto_mensal = soma_perdas
+    impacto_anual = impacto_mensal * 12
 
     if gap > 20:
         nivel = "critico"
@@ -152,7 +166,9 @@ def compute(payload: CalculationInput) -> CalculationResult:
         valor_referencia=round(ref, 4),
         gap_eficiencia=round(gap, 4),
         gap_direction=gap_direction,
-        volume_periodo=volume,
+        avg_denominator=round(avg_den, 2),
+        perda_financeira_mensal=round(perda_financeira_mensal, 2),
+        perda_financeira_anual=round(perda_financeira_anual, 2),
         soma_perdas=round(soma_perdas, 2),
         items=items_result,
         impacto_mensal=round(impacto_mensal, 2),
@@ -164,7 +180,7 @@ def compute(payload: CalculationInput) -> CalculationResult:
 
 @api_router.get("/")
 async def root():
-    return {"message": "Calculadora de Desperdício API", "version": "2.0"}
+    return {"message": "Calculadora de Desperdício API", "version": "3.0"}
 
 
 @api_router.get("/lean-wastes")

@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Plus, Trash, ChartLineUp, Sparkle, Check } from "@phosphor-icons/react";
+import { Plus, Trash, ChartLineUp, Sparkle, Check, Tag } from "@phosphor-icons/react";
 import { useCalculator } from "@/contexts/CalculatorContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,18 +9,25 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   ResponsiveContainer, LineChart, Line, Tooltip, XAxis, YAxis, CartesianGrid,
 } from "recharts";
-import { formatNum } from "@/lib/calculations";
+import { formatNum, pctOf } from "@/lib/calculations";
 
 export default function Step1Historical() {
   const {
+    indicatorName, setIndicatorName,
+    denominatorName, setDenominatorName,
     historical, setHistorical,
     performanceAtualOverride, setPerformanceAtualOverride,
     result,
   } = useCalculator();
 
-  const updatePoint = (idx, value) => {
+  const updateNumerator = (idx, v) => {
     const next = [...historical];
-    next[idx] = { ...next[idx], value: Number(value) };
+    next[idx] = { ...next[idx], numerator: Number(v) };
+    setHistorical(next);
+  };
+  const updateDenominator = (idx, v) => {
+    const next = [...historical];
+    next[idx] = { ...next[idx], denominator: Number(v) };
     setHistorical(next);
   };
   const updateLabel = (idx, label) => {
@@ -39,7 +46,7 @@ export default function Step1Historical() {
   const addPoint = () => {
     setHistorical([
       ...historical,
-      { label: `Mês ${historical.length + 1}`, value: 0, included: true },
+      { label: `Mês ${historical.length + 1}`, numerator: 0, denominator: 0, included: true },
     ]);
   };
   const removePoint = (idx) => {
@@ -48,7 +55,7 @@ export default function Step1Historical() {
 
   const chartData = historical.map((p) => ({
     label: p.label,
-    Eficiencia: Number(p.value || 0),
+    Eficiencia: pctOf(p.numerator, p.denominator),
     Performance: result.performance_atual,
     included: p.included !== false,
   }));
@@ -64,12 +71,44 @@ export default function Step1Historical() {
     >
       <div>
         <div className="text-xs uppercase tracking-[0.25em] text-primary font-bold mb-2">Etapa 01 · Avaliação Histórica</div>
-        <h2 className="font-display font-black text-3xl lg:text-4xl tracking-tight">Sua eficiência ao longo do tempo</h2>
-        <p className="text-muted-foreground mt-3 max-w-2xl text-sm leading-relaxed">
-          Insira a série temporal do seu indicador de <span className="text-foreground font-semibold">eficiência</span> (produção, % refugo, volume de vendas etc).
-          Use as caixas de seleção na tabela abaixo para escolher <span className="text-foreground font-semibold">apenas o período relevante</span> (útil quando há mudança de patamar no gráfico).
-          A média dos pontos selecionados é a sua <span className="text-foreground font-semibold">Performance Atual</span>.
+        <h2 className="font-display font-black text-3xl lg:text-4xl tracking-tight">Defina seu indicador e o histórico</h2>
+        <p className="text-muted-foreground mt-3 max-w-3xl text-sm leading-relaxed">
+          Informe o nome do indicador que você quer analisar (ex: <span className="text-foreground italic">"Custo variável"</span>, <span className="text-foreground italic">"% Refugo"</span>, <span className="text-foreground italic">"Volume de vendas"</span>) e preencha as colunas mês a mês. A calculadora computa automaticamente o percentual <span className="font-mono-num text-foreground">Numerador ÷ Denominador × 100</span>. <span className="text-foreground font-semibold">Analise o comportamento histórico</span> e use as caixas de seleção pra escolher <span className="text-foreground font-semibold">apenas o período relevante</span> (útil quando há mudança de patamar).
         </p>
+      </div>
+
+      {/* Indicator name fields */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-card border border-border rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <Tag size={16} weight="duotone" className="text-primary" />
+            <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">
+              Nome do Numerador
+            </Label>
+          </div>
+          <Input
+            data-testid="input-indicator-name"
+            value={indicatorName}
+            onChange={(e) => setIndicatorName(e.target.value)}
+            placeholder="Ex: Custo variável, Refugo, Horas paradas..."
+            className="bg-muted border-border h-12 text-base"
+          />
+        </div>
+        <div className="bg-card border border-border rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <Tag size={16} weight="duotone" className="text-primary" />
+            <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">
+              Nome do Denominador
+            </Label>
+          </div>
+          <Input
+            data-testid="input-denominator-name"
+            value={denominatorName}
+            onChange={(e) => setDenominatorName(e.target.value)}
+            placeholder="Ex: Faturamento, Produção total, Horas planejadas..."
+            className="bg-muted border-border h-12 text-base"
+          />
+        </div>
       </div>
 
       {/* Chart preview */}
@@ -77,10 +116,12 @@ export default function Step1Historical() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <ChartLineUp size={18} weight="duotone" className="text-primary" />
-            <span className="text-xs uppercase tracking-[0.2em] font-bold text-muted-foreground">Série Temporal · Eficiência</span>
+            <span className="text-xs uppercase tracking-[0.2em] font-bold text-muted-foreground">
+              Série Temporal · {indicatorName || "Indicador"} ÷ {denominatorName || "Denominador"} (%)
+            </span>
           </div>
           <div className="text-xs font-mono-num text-muted-foreground">
-            {includedCount}/{historical.length} pontos selecionados
+            {includedCount}/{historical.length} pontos
           </div>
         </div>
         <div className="h-56">
@@ -94,6 +135,7 @@ export default function Step1Historical() {
                 axisLine={false}
                 tickLine={false}
                 domain={[(dataMin) => Math.max(0, Math.floor((dataMin ?? 0) * 0.9)), (dataMax) => Math.ceil((dataMax ?? 0) * 1.1)]}
+                tickFormatter={(v) => `${v.toFixed(0)}%`}
                 allowDecimals
               />
               <Tooltip
@@ -104,6 +146,7 @@ export default function Step1Historical() {
                   fontSize: 12,
                 }}
                 labelStyle={{ color: "hsl(210, 40%, 98%)" }}
+                formatter={(v) => `${Number(v).toFixed(2)}%`}
               />
               <Line
                 type="monotone"
@@ -137,9 +180,9 @@ export default function Step1Historical() {
             </LineChart>
           </ResponsiveContainer>
         </div>
-        <div className="mt-3 flex items-center gap-4 text-[10px] uppercase tracking-widest text-muted-foreground">
+        <div className="mt-3 flex flex-wrap items-center gap-4 text-[10px] uppercase tracking-widest text-muted-foreground">
           <span className="inline-flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-primary"></span> Eficiência (pontos selecionados)
+            <span className="w-2.5 h-2.5 rounded-full bg-primary"></span> {indicatorName || "Indicador"} (% selecionados)
           </span>
           <span className="inline-flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full border border-primary bg-card"></span> Não considerados
@@ -157,7 +200,7 @@ export default function Step1Historical() {
             <div>
               <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-primary">Performance Atual</Label>
               <div className="font-mono-num font-bold text-4xl mt-2 text-foreground">
-                {formatNum(result.performance_atual, 2)}
+                {formatNum(result.performance_atual, 2)}<span className="text-2xl text-muted-foreground ml-1">%</span>
               </div>
               <p className="text-xs text-muted-foreground mt-1.5">
                 {performanceAtualOverride !== null && performanceAtualOverride !== ""
@@ -208,7 +251,7 @@ export default function Step1Historical() {
         </div>
       </div>
 
-      {/* Editable historical table */}
+      {/* Editable historical table — 2 cols: numerator + denominator */}
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <span className="text-xs uppercase tracking-[0.2em] font-bold text-muted-foreground">Editar Pontos</span>
@@ -223,19 +266,22 @@ export default function Step1Historical() {
             <Plus size={14} weight="bold" /> Adicionar mês
           </Button>
         </div>
-        <div className="max-h-80 overflow-y-auto">
+        <div className="max-h-96 overflow-y-auto">
           <table className="w-full text-sm">
             <thead className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground bg-muted/40 sticky top-0 backdrop-blur">
               <tr>
                 <th className="w-14 text-center font-bold p-3">Usar</th>
-                <th className="text-left font-bold p-3 w-1/2">Período</th>
-                <th className="text-right font-bold p-3">Eficiência</th>
+                <th className="text-left font-bold p-3 w-28">Período</th>
+                <th className="text-right font-bold p-3">{indicatorName || "Numerador"}</th>
+                <th className="text-right font-bold p-3">{denominatorName || "Denominador"}</th>
+                <th className="text-right font-bold p-3 w-24 text-primary">%</th>
                 <th className="w-12"></th>
               </tr>
             </thead>
             <tbody>
               {historical.map((p, i) => {
                 const included = p.included !== false;
+                const pct = pctOf(p.numerator, p.denominator);
                 return (
                   <tr key={i} className={`border-t border-border/40 hover:bg-muted/20 ${!included ? "opacity-50" : ""}`}>
                     <td className="p-2 text-center">
@@ -256,13 +302,26 @@ export default function Step1Historical() {
                     </td>
                     <td className="p-2 text-right">
                       <Input
-                        data-testid={`historical-value-${i}`}
+                        data-testid={`historical-num-${i}`}
                         type="number"
                         step="0.01"
-                        value={p.value}
-                        onChange={(e) => updatePoint(i, e.target.value)}
+                        value={p.numerator}
+                        onChange={(e) => updateNumerator(i, e.target.value)}
                         className="bg-transparent border-transparent hover:border-border h-9 text-right font-mono-num text-sm"
                       />
+                    </td>
+                    <td className="p-2 text-right">
+                      <Input
+                        data-testid={`historical-den-${i}`}
+                        type="number"
+                        step="0.01"
+                        value={p.denominator}
+                        onChange={(e) => updateDenominator(i, e.target.value)}
+                        className="bg-transparent border-transparent hover:border-border h-9 text-right font-mono-num text-sm"
+                      />
+                    </td>
+                    <td className="p-2 text-right font-mono-num text-sm text-primary">
+                      {pct.toFixed(2)}%
                     </td>
                     <td className="p-2 text-center">
                       <Button

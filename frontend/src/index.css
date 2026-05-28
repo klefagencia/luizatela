@@ -134,6 +134,32 @@ html, body {
     animation: critical-pulse 2.4s ease-in-out infinite;
 }
 
+/* Print styles */
+@media print {
+    html, body {
+        background: white !important;
+        color: black !important;
+    }
+    .noise::before, .grid-bg, [data-testid="site-header"], [data-testid="prev-step-btn"], [data-testid="next-step-btn"], [data-testid="restart-btn"], [data-testid="save-simulation-btn"], [data-testid="print-btn"], [data-testid="step-indicator"], [data-testid="live-loss-pill"] {
+        display: none !important;
+    }
+    [data-testid="wizard-card"] {
+        background: white !important;
+        border: 1px solid #ddd !important;
+        page-break-inside: avoid;
+    }
+    .text-destructive, .text-primary {
+        color: black !important;
+    }
+    .bg-card, .bg-muted, .bg-card\/60 {
+        background: white !important;
+        border-color: #ddd !important;
+    }
+    .text-muted-foreground { color: #555 !important; }
+    .font-mono-num { color: black !important; }
+}
+
+
 /* Noise overlay */
 .noise::before {
     content: '';

@@ -2,16 +2,14 @@ import React from "react";
 import { motion } from "framer-motion";
 import CountUp from "react-countup";
 import {
-  TrendDown, Warning, Coins, ChartPieSlice, ChartBar, Sparkle, Lightning, Factory,
+  TrendDown, Warning, Coins, ChartPieSlice, ChartBar, Sparkle, Lightning,
 } from "@phosphor-icons/react";
 import {
   ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
 } from "recharts";
 import { useCalculator } from "@/contexts/CalculatorContext";
-import { LEAN_WASTES, formatBRL, formatBRLDecimal, formatNum, formatPct } from "@/lib/calculations";
+import { LEAN_WASTES, formatBRL, formatBRLDecimal, formatNum } from "@/lib/calculations";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import axios from "axios";
 
@@ -24,19 +22,14 @@ export default function Step4Diagnostic() {
     historical,
     performanceAtualOverride,
     valorReferencia,
-    volumePeriodo,
-    setVolumePeriodo,
+    indicatorName, denominatorName,
     lossItems,
   } = useCalculator();
 
-  const totalProducao = result.volume_periodo;
-  const fracGap = Math.min(1, Math.max(0, result.gap_eficiencia / 100));
-  const totalDesperdicioVol = totalProducao * fracGap;
-  const efetivo = Math.max(0, totalProducao - totalDesperdicioVol);
-
+  // Donut: top-down perda vs itens identificados
   const donutData = [
-    { name: "Produção efetiva", value: efetivo, color: "hsl(217.2, 91.2%, 59.8%)" },
-    { name: "Desperdício (GAP)", value: totalDesperdicioVol, color: "hsl(0, 84.2%, 60.2%)" },
+    { name: "Perda top-down (Etapa 2)", value: result.perda_financeira_mensal, color: "hsl(217.2, 91.2%, 59.8%)" },
+    { name: "Perdas identificadas (Etapa 3)", value: result.impacto_mensal, color: "hsl(0, 84.2%, 60.2%)" },
   ];
 
   const barData = LEAN_WASTES
@@ -58,22 +51,29 @@ export default function Step4Diagnostic() {
       const payload = {
         name: `Simulação ${new Date().toLocaleDateString("pt-BR")}`,
         input: {
+          indicator_name: indicatorName,
+          denominator_name: denominatorName,
           historical,
           performance_atual: performanceAtualOverride !== null && performanceAtualOverride !== ""
             ? Number(performanceAtualOverride) : null,
           valor_referencia: Number(valorReferencia),
-          volume_periodo: Number(volumePeriodo),
           loss_items: lossItems,
         },
         result: {
           performance_atual: result.performance_atual,
           valor_referencia: result.valor_referencia,
           gap_eficiencia: result.gap_eficiencia,
-          volume_periodo: result.volume_periodo,
+          gap_direction: result.gap_direction,
+          avg_denominator: result.avg_denominator,
+          perda_financeira_mensal: result.perda_financeira_mensal,
+          perda_financeira_anual: result.perda_financeira_anual,
           soma_perdas: result.soma_perdas,
           items: result.items.map((i) => ({
-            id: i.id, description: i.description, unit_cost: i.unit_cost, category: i.category || "",
-            impacto_mensal: i.impacto_mensal, impacto_anual: i.impacto_anual,
+            id: i.id, description: i.description,
+            unit_cost: i.unit_cost,
+            ocorrencia_mensal: Number(i.ocorrencia_mensal || 0),
+            category: i.category || "",
+            custo_mensal: i.custo_mensal, custo_anual: i.custo_anual,
           })),
           impacto_mensal: result.impacto_mensal,
           impacto_anual: result.impacto_anual,
@@ -84,8 +84,14 @@ export default function Step4Diagnostic() {
       await axios.post(`${API}/simulations`, payload);
       toast.success("Simulação salva com sucesso");
     } catch (e) {
-      console.error(e);
-      toast.error("Erro ao salvar simulação");
+      console.error("Erro ao salvar:", e?.response?.data || e?.message || e);
+      const detail = e?.response?.data?.detail;
+      const msg = typeof detail === "string"
+        ? detail
+        : Array.isArray(detail) && detail[0]?.msg
+        ? `${detail[0].loc?.join('.') || ''}: ${detail[0].msg}`
+        : "Erro ao salvar simulação";
+      toast.error(msg);
     }
   };
 
@@ -98,7 +104,6 @@ export default function Step4Diagnostic() {
       transition={{ duration: 0.4 }}
       className="space-y-10"
     >
-      {/* Header */}
       <div>
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-destructive/30 bg-destructive/10 text-destructive text-xs uppercase tracking-[0.2em] font-bold mb-5">
           <Warning size={12} weight="fill" />
@@ -117,46 +122,14 @@ export default function Step4Diagnostic() {
             separator="."
             decimal=","
             prefix="R$ "
-            decimals={0}
+            decimals={2}
+            preserveValue
           />
           <span className="text-2xl lg:text-3xl text-muted-foreground font-mono-num font-medium tracking-widest ml-3">/ MÊS</span>
         </div>
         <p className="text-muted-foreground mt-4 max-w-2xl text-base lg:text-lg">
-          Baseado no seu GAP de <span className="text-foreground font-bold font-mono-num">{formatNum(result.gap_eficiencia, 2)} pts</span>, volume de <span className="text-foreground font-bold font-mono-num">{formatNum(result.volume_periodo, 0)}</span> un/mês e <span className="text-foreground font-bold font-mono-num">{formatBRLDecimal(result.soma_perdas)}</span> em perdas identificadas.
+          Soma dos custos mensais das <span className="text-foreground font-bold font-mono-num">{result.items.length}</span> perda(s) identificada(s) na Etapa 03, considerando custo unitário × ocorrência mensal.
         </p>
-      </div>
-
-      {/* Volume input — the final input before seeing impact */}
-      <div className="bg-card border border-primary/40 rounded-xl p-6 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-48 h-48 rounded-full pointer-events-none"
-          style={{ background: "radial-gradient(closest-side, hsla(217.2, 91.2%, 59.8%, 0.10), transparent 70%)" }} />
-        <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center gap-6 lg:gap-10">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-3">
-              <Factory size={18} weight="duotone" className="text-primary" />
-              <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-primary">Volume de produção mensal</Label>
-            </div>
-            <Input
-              data-testid="input-volume"
-              type="number"
-              value={volumePeriodo}
-              onChange={(e) => setVolumePeriodo(Number(e.target.value || 0))}
-              className="bg-muted border-border h-14 font-mono-num text-2xl"
-            />
-            <p className="text-[10px] text-muted-foreground mt-2 uppercase tracking-wider">
-              Unidades produzidas ou vendidas no mês (peças, toneladas, pedidos etc.)
-            </p>
-          </div>
-          <div className="flex-shrink-0 w-full lg:w-auto font-mono-num text-xs text-muted-foreground bg-muted/30 border border-border rounded-lg p-4">
-            <div className="uppercase tracking-[0.2em] font-bold mb-2 text-[10px]">Fórmula · Conversão</div>
-            <div className="text-foreground">
-              <span className="text-primary">Volume</span> × <span className="text-primary">GAP%</span> × <span className="text-primary">Σ Perdas</span>
-            </div>
-            <div className="mt-1 text-[10px]">
-              {formatNum(result.volume_periodo, 0)} × {formatNum(result.gap_eficiencia, 2)}% × {formatBRLDecimal(result.soma_perdas)}
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* KPI Bento Grid */}
@@ -166,7 +139,7 @@ export default function Step4Diagnostic() {
           <Coins size={22} weight="duotone" className="text-destructive mb-3" />
           <div className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">Impacto Anual</div>
           <div className="font-mono-num font-bold text-3xl lg:text-4xl mt-2 text-destructive" data-testid="result-annual-loss">
-            <CountUp end={result.impacto_anual} duration={2.4} separator="." decimal="," prefix="R$ " decimals={0} />
+            <CountUp end={result.impacto_anual} duration={2.4} separator="." decimal="," prefix="R$ " decimals={2} preserveValue />
           </div>
           <div className="text-xs text-muted-foreground mt-2">Mensal × 12</div>
         </div>
@@ -175,20 +148,20 @@ export default function Step4Diagnostic() {
           <TrendDown size={22} weight="duotone" className="text-primary mb-3" />
           <div className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">GAP de Eficiência</div>
           <div className="font-mono-num font-bold text-3xl lg:text-4xl mt-2">
-            <CountUp end={result.gap_eficiencia} duration={2} decimals={2} suffix=" pts" />
+            <CountUp end={result.gap_eficiencia} duration={2} decimals={2} suffix=" pts" preserveValue />
           </div>
           <div className="text-xs text-muted-foreground mt-2">
-            Atual: <span className="font-mono-num">{formatNum(result.performance_atual, 1)}</span> · Ref: <span className="font-mono-num">{formatNum(result.valor_referencia, 1)}</span>
+            Atual: <span className="font-mono-num">{formatNum(result.performance_atual, 1)}%</span> · Ref: <span className="font-mono-num">{formatNum(result.valor_referencia, 1)}%</span>
           </div>
         </div>
 
         <div className="bg-card border border-border rounded-xl p-6">
           <Sparkle size={22} weight="duotone" className="text-primary mb-3" />
-          <div className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">Σ Perdas unitárias</div>
+          <div className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">Perda top-down (Etapa 2)</div>
           <div className="font-mono-num font-bold text-3xl lg:text-4xl mt-2">
-            <CountUp end={result.soma_perdas} duration={2} decimals={2} prefix="R$ " separator="." decimal="," />
+            <CountUp end={result.perda_financeira_mensal} duration={2} decimals={2} prefix="R$ " separator="." decimal="," preserveValue />
           </div>
-          <div className="text-xs text-muted-foreground mt-2">{result.items.length} perda(s) identificada(s)</div>
+          <div className="text-xs text-muted-foreground mt-2">GAP × {denominatorName || "denominador"} médio</div>
         </div>
       </div>
 
@@ -206,13 +179,12 @@ export default function Step4Diagnostic() {
         ))}
       </div>
 
-      {/* Charts grid */}
+      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Donut */}
         <div className="bg-card border border-border rounded-xl p-6">
           <div className="flex items-center gap-2 mb-4">
             <ChartPieSlice size={18} weight="duotone" className="text-primary" />
-            <span className="text-xs uppercase tracking-[0.2em] font-bold text-muted-foreground">Produção vs Desperdício (GAP)</span>
+            <span className="text-xs uppercase tracking-[0.2em] font-bold text-muted-foreground">Top-down vs Itemizado</span>
           </div>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -236,26 +208,25 @@ export default function Step4Diagnostic() {
                     borderRadius: 8,
                     fontSize: 12,
                   }}
-                  formatter={(v) => Number(v).toLocaleString("pt-BR", { maximumFractionDigits: 0 })}
+                  formatter={(v) => formatBRLDecimal(v)}
                 />
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <div className="grid grid-cols-2 gap-2 mt-3">
-            <div className="flex items-center gap-2 text-xs">
+          <div className="grid grid-cols-1 gap-1 mt-3 text-xs">
+            <div className="flex items-center gap-2">
               <div className="w-2.5 h-2.5 rounded-sm bg-primary" />
-              <span className="text-muted-foreground">Efetiva</span>
-              <span className="ml-auto font-mono-num font-bold">{efetivo.toLocaleString("pt-BR", { maximumFractionDigits: 0 })}</span>
+              <span className="text-muted-foreground">Top-down (GAP × Den.)</span>
+              <span className="ml-auto font-mono-num font-bold">{formatBRLDecimal(result.perda_financeira_mensal)}</span>
             </div>
-            <div className="flex items-center gap-2 text-xs">
+            <div className="flex items-center gap-2">
               <div className="w-2.5 h-2.5 rounded-sm bg-destructive" />
-              <span className="text-muted-foreground">Desperdício</span>
-              <span className="ml-auto font-mono-num font-bold">{totalDesperdicioVol.toLocaleString("pt-BR", { maximumFractionDigits: 0 })}</span>
+              <span className="text-muted-foreground">Itemizado (Σ perdas)</span>
+              <span className="ml-auto font-mono-num font-bold">{formatBRLDecimal(result.impacto_mensal)}</span>
             </div>
           </div>
         </div>
 
-        {/* Bar by category */}
         <div className="bg-card border border-border rounded-xl p-6">
           <div className="flex items-center gap-2 mb-4">
             <ChartBar size={18} weight="duotone" className="text-primary" />
@@ -288,7 +259,7 @@ export default function Step4Diagnostic() {
         </div>
       </div>
 
-      {/* Detailed breakdown table (without "Perda Anual" column — now "Impacto") */}
+      {/* Detailed breakdown table */}
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <div className="px-5 py-4 border-b border-border">
           <span className="text-xs uppercase tracking-[0.2em] font-bold text-muted-foreground">Detalhamento por perda identificada</span>
@@ -297,11 +268,12 @@ export default function Step4Diagnostic() {
           <table className="w-full text-sm">
             <thead className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground bg-muted/40">
               <tr>
-                <th className="text-left font-bold p-3">Descrição da Perda</th>
+                <th className="text-left font-bold p-3">Descrição</th>
                 <th className="text-left font-bold p-3">Tipo Lean</th>
-                <th className="text-right font-bold p-3">Custo Unitário</th>
-                <th className="text-right font-bold p-3">Impacto Mensal</th>
-                <th className="text-right font-bold p-3">Impacto Anual</th>
+                <th className="text-right font-bold p-3">Unit.</th>
+                <th className="text-right font-bold p-3">Ocor./mês</th>
+                <th className="text-right font-bold p-3">Custo Mensal</th>
+                <th className="text-right font-bold p-3">Custo Anual</th>
               </tr>
             </thead>
             <tbody>
@@ -320,13 +292,14 @@ export default function Step4Diagnostic() {
                       )}
                     </td>
                     <td className="p-3 text-right font-mono-num text-muted-foreground">{formatBRLDecimal(it.unit_cost)}</td>
-                    <td className="p-3 text-right font-mono-num">{formatBRLDecimal(it.impacto_mensal)}</td>
-                    <td className="p-3 text-right font-mono-num font-bold text-destructive">{formatBRLDecimal(it.impacto_anual)}</td>
+                    <td className="p-3 text-right font-mono-num">{Number(it.ocorrencia_mensal || 0)}</td>
+                    <td className="p-3 text-right font-mono-num">{formatBRLDecimal(it.custo_mensal)}</td>
+                    <td className="p-3 text-right font-mono-num font-bold text-destructive">{formatBRLDecimal(it.custo_anual)}</td>
                   </tr>
                 );
               })}
               <tr className="border-t-2 border-primary/40 bg-primary/5">
-                <td colSpan={3} className="p-3 text-right text-xs uppercase tracking-[0.2em] font-bold text-muted-foreground">Totalização</td>
+                <td colSpan={4} className="p-3 text-right text-xs uppercase tracking-[0.2em] font-bold text-muted-foreground">Totalização</td>
                 <td className="p-3 text-right font-mono-num font-bold">{formatBRLDecimal(result.impacto_mensal)}</td>
                 <td className="p-3 text-right font-mono-num font-black text-destructive text-base">{formatBRLDecimal(result.impacto_anual)}</td>
               </tr>

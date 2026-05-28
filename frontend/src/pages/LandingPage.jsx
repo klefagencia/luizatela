@@ -226,7 +226,7 @@ export default function LandingPage() {
                   Luiz Atela
                 </h2>
                 <p className="text-muted-foreground text-base lg:text-lg leading-relaxed max-w-2xl mb-6">
-                  Consultor especialista em <span className="text-foreground font-semibold">excelência operacional</span> com <span className="text-foreground font-bold">mais de 25 anos</span> ajudando empresas a eliminar desperdícios e multiplicar a lucratividade. Certificado <span className="text-foreground font-semibold">Green Belt</span> e <span className="text-foreground font-semibold">Black Belt</span>, com histórico comprovado em mais de <span className="text-foreground font-bold font-mono-num">300 projetos</span> de otimização.
+                  Consultor especialista em <span className="text-foreground font-semibold">excelência operacional</span> com <span className="text-foreground font-bold">mais de 25 anos</span> ajudando empresas a eliminar desperdícios e multiplicar a lucratividade. Certificado <span className="text-foreground font-semibold">Master Black Belt</span>, com histórico comprovado em mais de <span className="text-foreground font-bold font-mono-num">300 projetos</span> de otimização.
                 </p>
                 <div className="flex flex-wrap gap-3 mt-6">
                   {[

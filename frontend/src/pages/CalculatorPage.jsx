@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { ArrowLeft, ArrowRight } from "@phosphor-icons/react";
 import Header from "@/components/Header";
 import StepIndicator from "@/components/StepIndicator";
@@ -8,7 +8,6 @@ import Step3LossesCosts from "@/components/wizard/Step3Costs";
 import Step4Diagnostic from "@/components/wizard/Step4Diagnostic";
 import { useCalculator } from "@/contexts/CalculatorContext";
 import { Button } from "@/components/ui/button";
-import { formatBRL } from "@/lib/calculations";
 
 const steps = [
   { id: "historical", title: "Avaliação Histórica" },
@@ -18,7 +17,12 @@ const steps = [
 ];
 
 export default function CalculatorPage() {
-  const { step, setStep, result } = useCalculator();
+  const { step, setStep } = useCalculator();
+
+  // Scroll to top whenever step changes (smooth UX between etapas)
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [step]);
 
   const goNext = () => setStep(Math.min(step + 1, steps.length - 1));
   const goPrev = () => setStep(Math.max(step - 1, 0));
@@ -40,17 +44,6 @@ export default function CalculatorPage() {
         <div className="mb-10">
           <StepIndicator steps={steps} current={step} onJump={(i) => setStep(i)} />
         </div>
-
-        {/* Real-time perda preview pill (visible on steps 0-2) */}
-        {step < 3 && (
-          <div className="mb-8 inline-flex items-center gap-3 px-4 py-2.5 rounded-full border border-destructive/30 bg-destructive/5">
-            <span className="w-2 h-2 rounded-full bg-destructive animate-pulse" />
-            <span className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">Impacto anual estimado</span>
-            <span className="font-mono-num font-bold text-destructive" data-testid="live-loss-pill">
-              {formatBRL(result.impacto_anual)}
-            </span>
-          </div>
-        )}
 
         {/* Step content */}
         <div className="bg-card/60 border border-border rounded-2xl p-6 lg:p-10 backdrop-blur" data-testid="wizard-card">
