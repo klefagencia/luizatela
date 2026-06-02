@@ -1,6 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Plus, Trash, ChartLineUp, Sparkle, Check, Tag } from "@phosphor-icons/react";
+import {
+  Plus, Trash, ChartLineUp, Sparkle, Check, Tag, Coins, TrendUp, Star, Timer, Ruler,
+} from "@phosphor-icons/react";
 import { useCalculator } from "@/contexts/CalculatorContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,12 +11,17 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   ResponsiveContainer, LineChart, Line, Tooltip, XAxis, YAxis, CartesianGrid,
 } from "recharts";
-import { formatNum, pctOf } from "@/lib/calculations";
+import { formatNum, pctOf, EFFICIENCY_TYPES } from "@/lib/calculations";
+import { cn } from "@/lib/utils";
+
+const TYPE_ICONS = { CUSTO: Coins, PRODUTIVIDADE: TrendUp, QUALIDADE: Star, TEMPO_CICLO: Timer };
 
 export default function Step1Historical() {
   const {
+    efficiencyType, setEfficiencyType,
     indicatorName, setIndicatorName,
     denominatorName, setDenominatorName,
+    unidadeMedida, setUnidadeMedida,
     historical, setHistorical,
     performanceAtualOverride, setPerformanceAtualOverride,
     result,
@@ -61,6 +68,7 @@ export default function Step1Historical() {
   }));
 
   const includedCount = historical.filter((p) => p.included !== false).length;
+  const isCustoOnly = efficiencyType === "CUSTO";
 
   return (
     <motion.div
@@ -73,17 +81,68 @@ export default function Step1Historical() {
         <div className="text-xs uppercase tracking-[0.25em] text-primary font-bold mb-2">Etapa 01 · Avaliação Histórica</div>
         <h2 className="font-display font-black text-3xl lg:text-4xl tracking-tight">Defina seu indicador e o histórico</h2>
         <p className="text-muted-foreground mt-3 max-w-3xl text-sm leading-relaxed">
-          Informe o nome do indicador que você quer analisar (ex: <span className="text-foreground italic">"Custo variável"</span>, <span className="text-foreground italic">"% Refugo"</span>, <span className="text-foreground italic">"Volume de vendas"</span>) e preencha as colunas mês a mês. A calculadora computa automaticamente o percentual <span className="font-mono-num text-foreground">Numerador ÷ Denominador × 100</span>. <span className="text-foreground font-semibold">Analise o comportamento histórico</span> e use as caixas de seleção pra escolher <span className="text-foreground font-semibold">apenas o período relevante</span> (útil quando há mudança de patamar).
+          Comece escolhendo o <span className="text-foreground font-semibold">tipo de eficiência</span>, dê nomes às variáveis e preencha mês a mês. A calculadora computa o percentual <span className="font-mono-num text-foreground">variável ÷ fator de ponderação × 100</span> e a sua <span className="text-foreground font-semibold">Performance Atual</span>.
         </p>
       </div>
 
-      {/* Indicator name fields */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* PRE-Q · Efficiency type selector */}
+      <div className="bg-card border border-border rounded-xl p-5 lg:p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Sparkle size={18} weight="duotone" className="text-primary" />
+            <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">
+              Qual tipo de eficiência será avaliado?
+            </Label>
+          </div>
+          {!isCustoOnly && (
+            <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-yellow-400 bg-yellow-500/10 border border-yellow-500/30 rounded-full px-2.5 py-1">
+              Modo Custo (preview)
+            </span>
+          )}
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {EFFICIENCY_TYPES.map((t) => {
+            const Icon = TYPE_ICONS[t.id] || Sparkle;
+            const active = efficiencyType === t.id;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => setEfficiencyType(t.id)}
+                data-testid={`eff-type-${t.id.toLowerCase()}`}
+                className={cn(
+                  "group text-left relative p-4 rounded-lg border transition-all",
+                  active
+                    ? "bg-primary/10 border-primary"
+                    : "bg-muted/30 border-border hover:border-primary/40"
+                )}
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <Icon size={22} weight="duotone" className={cn(active ? "text-primary" : "text-muted-foreground")} />
+                  <div
+                    className={cn(
+                      "w-5 h-5 rounded-full border flex items-center justify-center",
+                      active ? "bg-primary border-primary" : "border-border"
+                    )}
+                  >
+                    {active && <Check size={12} weight="bold" className="text-primary-foreground" />}
+                  </div>
+                </div>
+                <h4 className="font-display font-bold text-sm">{t.label}</h4>
+                <p className="text-[11px] text-muted-foreground italic mt-0.5">"{t.desc}"</p>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Q1, Q2, Q3 — Variável de interesse + Fator de ponderação + Unidade */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-card border border-border rounded-xl p-5">
           <div className="flex items-center gap-2 mb-3">
             <Tag size={16} weight="duotone" className="text-primary" />
             <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">
-              Nome do Numerador
+              Variável de interesse
             </Label>
           </div>
           <Input
@@ -98,7 +157,7 @@ export default function Step1Historical() {
           <div className="flex items-center gap-2 mb-3">
             <Tag size={16} weight="duotone" className="text-primary" />
             <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">
-              Nome do Denominador
+              Fator de ponderação
             </Label>
           </div>
           <Input
@@ -106,6 +165,21 @@ export default function Step1Historical() {
             value={denominatorName}
             onChange={(e) => setDenominatorName(e.target.value)}
             placeholder="Ex: Faturamento, Produção total, Horas planejadas..."
+            className="bg-muted border-border h-12 text-base"
+          />
+        </div>
+        <div className="bg-card border border-border rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <Ruler size={16} weight="duotone" className="text-primary" />
+            <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">
+              Unidade de medida
+            </Label>
+          </div>
+          <Input
+            data-testid="input-unit-name"
+            value={unidadeMedida}
+            onChange={(e) => setUnidadeMedida(e.target.value)}
+            placeholder="Ex: R$, horas, un..."
             className="bg-muted border-border h-12 text-base"
           />
         </div>
@@ -117,7 +191,7 @@ export default function Step1Historical() {
           <div className="flex items-center gap-2">
             <ChartLineUp size={18} weight="duotone" className="text-primary" />
             <span className="text-xs uppercase tracking-[0.2em] font-bold text-muted-foreground">
-              Série Temporal · {indicatorName || "Indicador"} ÷ {denominatorName || "Denominador"} (%)
+              Série · {indicatorName || "Variável"} ÷ {denominatorName || "Fator"} (%)
             </span>
           </div>
           <div className="text-xs font-mono-num text-muted-foreground">
@@ -148,14 +222,7 @@ export default function Step1Historical() {
                 labelStyle={{ color: "hsl(210, 40%, 98%)" }}
                 formatter={(v) => `${Number(v).toFixed(2)}%`}
               />
-              <Line
-                type="monotone"
-                dataKey="Performance"
-                stroke="hsl(150, 70%, 40%)"
-                strokeWidth={1.5}
-                strokeDasharray="6 4"
-                dot={false}
-              />
+              <Line type="monotone" dataKey="Performance" stroke="hsl(150, 70%, 40%)" strokeWidth={1.5} strokeDasharray="6 4" dot={false} />
               <Line
                 type="monotone"
                 dataKey="Eficiencia"
@@ -182,10 +249,10 @@ export default function Step1Historical() {
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-4 text-[10px] uppercase tracking-widest text-muted-foreground">
           <span className="inline-flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-primary"></span> {indicatorName || "Indicador"} (% selecionados)
+            <span className="w-2.5 h-2.5 rounded-full bg-primary"></span> Pontos selecionados
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full border border-primary bg-card"></span> Não considerados
+            <span className="w-2.5 h-2.5 rounded-full border border-primary bg-card"></span> Excluídos (atípicos)
           </span>
           <span className="inline-flex items-center gap-1.5">
             <span className="w-3 h-[2px] bg-emerald-500"></span> Performance Atual (média)
@@ -222,9 +289,9 @@ export default function Step1Historical() {
         </div>
 
         <div className="bg-card border border-border rounded-xl p-6">
-          <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">Dica · Seleção de Período</Label>
+          <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">Q5 · Exclusão de pontos atípicos</Label>
           <p className="text-sm text-foreground mt-2 leading-relaxed">
-            Quando há uma <span className="font-semibold">mudança de patamar</span> no gráfico (ex: melhoria no meio do período), desmarque os pontos antigos para que a Performance Atual reflita apenas o período relevante.
+            Quando há uma <span className="font-semibold">mudança de patamar</span> ou um <span className="font-semibold">ponto atípico</span>, desmarque a caixa na tabela para excluí-lo do cálculo da Performance Atual.
           </p>
           <div className="flex gap-2 mt-4">
             <Button
@@ -251,10 +318,10 @@ export default function Step1Historical() {
         </div>
       </div>
 
-      {/* Editable historical table — 2 cols: numerator + denominator */}
+      {/* Editable historical table */}
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-          <span className="text-xs uppercase tracking-[0.2em] font-bold text-muted-foreground">Editar Pontos</span>
+          <span className="text-xs uppercase tracking-[0.2em] font-bold text-muted-foreground">Q4 · Histórico mês a mês</span>
           <Button
             type="button"
             variant="outline"
@@ -272,8 +339,14 @@ export default function Step1Historical() {
               <tr>
                 <th className="w-14 text-center font-bold p-3">Usar</th>
                 <th className="text-left font-bold p-3 w-28">Período</th>
-                <th className="text-right font-bold p-3">{indicatorName || "Numerador"}</th>
-                <th className="text-right font-bold p-3">{denominatorName || "Denominador"}</th>
+                <th className="text-right font-bold p-3">
+                  {indicatorName || "Variável"}
+                  {unidadeMedida && <span className="text-muted-foreground/70 normal-case font-normal ml-1">({unidadeMedida})</span>}
+                </th>
+                <th className="text-right font-bold p-3">
+                  {denominatorName || "Fator"}
+                  {unidadeMedida && <span className="text-muted-foreground/70 normal-case font-normal ml-1">({unidadeMedida})</span>}
+                </th>
                 <th className="text-right font-bold p-3 w-24 text-primary">%</th>
                 <th className="w-12"></th>
               </tr>

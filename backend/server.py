@@ -53,12 +53,15 @@ class LossItem(BaseModel):
 
 class CalculationInput(BaseModel):
     model_config = ConfigDict(extra="ignore")
+    efficiency_type: Optional[str] = None
+    unidade_medida: Optional[str] = None
     indicator_name: Optional[str] = None
     denominator_name: Optional[str] = None
     historical: List[HistoricalPoint] = Field(default_factory=list)
     performance_atual: Optional[float] = None
     valor_referencia: float
     loss_items: List[LossItem] = Field(default_factory=list)
+    meta_reducao_pct: Optional[float] = 0
 
 
 class LossItemResult(BaseModel):
@@ -78,13 +81,16 @@ class CalculationResult(BaseModel):
     valor_referencia: float
     gap_eficiencia: float
     gap_direction: str
-    avg_denominator: float
+    fator_ponderacao_atual: float
     perda_financeira_mensal: float
     perda_financeira_anual: float
     soma_perdas: float
     items: List[LossItemResult]
     impacto_mensal: float
     impacto_anual: float
+    meta_reducao_pct: float = 0
+    valor_recuperavel_mensal: float = 0
+    valor_recuperavel_anual: float = 0
     perdas_por_categoria: dict
     nivel_desperdicio: str
 
@@ -120,7 +126,7 @@ def compute(payload: CalculationInput) -> CalculationResult:
         pcts = [pct_of(p.numerator, p.denominator) for p in source]
         perf_atual = sum(pcts) / len(pcts) if pcts else 0.0
 
-    avg_den = (sum(p.denominator for p in source) / len(source)) if source else 0.0
+    avg_den = float(source[-1].denominator) if source else 0.0
 
     ref = float(payload.valor_referencia)
     gap = abs(ref - perf_atual)
@@ -154,6 +160,10 @@ def compute(payload: CalculationInput) -> CalculationResult:
     impacto_mensal = soma_perdas
     impacto_anual = impacto_mensal * 12
 
+    meta_pct = max(0.0, min(100.0, float(payload.meta_reducao_pct or 0)))
+    valor_recuperavel_mensal = (meta_pct / 100.0) * perda_financeira_mensal
+    valor_recuperavel_anual = valor_recuperavel_mensal * 12
+
     if gap > 20:
         nivel = "critico"
     elif gap > 5:
@@ -166,13 +176,16 @@ def compute(payload: CalculationInput) -> CalculationResult:
         valor_referencia=round(ref, 4),
         gap_eficiencia=round(gap, 4),
         gap_direction=gap_direction,
-        avg_denominator=round(avg_den, 2),
+        fator_ponderacao_atual=round(avg_den, 2),
         perda_financeira_mensal=round(perda_financeira_mensal, 2),
         perda_financeira_anual=round(perda_financeira_anual, 2),
         soma_perdas=round(soma_perdas, 2),
         items=items_result,
         impacto_mensal=round(impacto_mensal, 2),
         impacto_anual=round(impacto_anual, 2),
+        meta_reducao_pct=round(meta_pct, 2),
+        valor_recuperavel_mensal=round(valor_recuperavel_mensal, 2),
+        valor_recuperavel_anual=round(valor_recuperavel_anual, 2),
         perdas_por_categoria={k: round(v, 2) for k, v in perdas_cat.items()},
         nivel_desperdicio=nivel,
     )

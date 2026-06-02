@@ -1,11 +1,19 @@
-// Updated logic per Luiz's meeting (2026-05):
-// - Historical points now have numerator + denominator → percentage computed
-// - Performance Atual = AVG(computed % of selected points)
-// - GAP bidirectional: |Benchmark - PerfAtual|
-// - Step 2 "Perda Financeira Estimada" = (GAP/100) × AVG(denominator of selected points)
-// - Loss items now have ocorrencia_mensal → custo_mensal_item = unit_cost × ocorrencia
-// - Σ Perdas = Σ custo_mensal_item
-// - Step 4 Impacto Mensal = Σ Perdas (direct), Anual = × 12
+// Calculation logic — aligned with Luiz Barbosa's full meeting roadmap.
+// Page 1: Variável de interesse (numerator) + Fator de ponderação (denominator)
+//         Performance Atual = AVG(% of selected points)
+// Page 2: GAP = |Benchmark - PerfAtual|
+//         Perda Financeira = (GAP/100) × Fator de Ponderação do ÚLTIMO mês selecionado
+// Page 3: Loss items {unit_cost × ocorrencia_mensal} → custo mensal
+//         Σ Perdas = Σ custo mensal
+// Page 4: Impacto = Σ Perdas
+//         Valor Recuperável = (meta_reducao_pct / 100) × Perda Financeira (mensal e anual)
+
+export const EFFICIENCY_TYPES = [
+  { id: "CUSTO", label: "Custo", desc: "fazer mais barato", icon: "Coins" },
+  { id: "PRODUTIVIDADE", label: "Produtividade", desc: "render mais", icon: "TrendUp" },
+  { id: "QUALIDADE", label: "Qualidade", desc: "entregar produto melhor", icon: "Sparkle" },
+  { id: "TEMPO_CICLO", label: "Tempo de Ciclo", desc: "fazer mais rápido", icon: "Timer" },
+];
 
 export const LEAN_WASTES = [
   { id: "DEFEITO", label: "Defeito", desc: "Produtos/serviços fora da especificação", example: "Ex: refugo, retrabalho, devolução" },
@@ -16,13 +24,6 @@ export const LEAN_WASTES = [
   { id: "ESTOQUE", label: "Estoque", desc: "Inventário em excesso (MP, WIP, acabado)", example: "Ex: perda ao guardar material" },
   { id: "MOVIMENTACAO", label: "Movimentação", desc: "Deslocamentos desnecessários de pessoas", example: "Ex: operador caminhando até almoxarifado" },
   { id: "SUPERPROCESSAMENTO", label: "Superprocessamento", desc: "Trabalho além do necessário pelo cliente", example: "Ex: inspeção duplicada, polimento extra" },
-];
-
-export const INDICATOR_EXAMPLES = [
-  "Custo variável (R$) / Faturamento (R$)",
-  "Refugo (un) / Produção total (un)",
-  "Horas paradas / Horas planejadas",
-  "Defeitos / Produzido",
 ];
 
 export function average(arr) {
@@ -49,10 +50,11 @@ export function computePerformanceAtual(historical, override) {
   return average(pcts);
 }
 
-export function computeAvgDenominator(historical) {
+// Returns the denominator of the LAST included point (Luiz's spec: "último mês apontado")
+export function lastDenominator(historical) {
   const pts = getSelectedPoints(historical);
-  const vals = pts.map((p) => Number(p.denominator || 0));
-  return average(vals);
+  if (pts.length === 0) return 0;
+  return Number(pts[pts.length - 1].denominator || 0);
 }
 
 export function computeGap(benchmark, performance) {
@@ -64,18 +66,19 @@ export function computeAll({
   performanceAtualOverride = null,
   valorReferencia = 0,
   lossItems = [],
+  metaReducaoPct = 0,
 }) {
   const perf = computePerformanceAtual(historical, performanceAtualOverride);
   const ref = Number(valorReferencia || 0);
   const gap = computeGap(ref, perf);
   const gapDirection = ref >= perf ? "below_ref" : "above_ref";
-  const avgDen = computeAvgDenominator(historical);
+  const fatorPonderacaoAtual = lastDenominator(historical);
 
-  // Top-down perda estimada (Step 2) — applicable when denominator has financial meaning
-  const perdaFinanceiraMensal = (gap / 100) * avgDen;
+  // Perda Financeira based on LAST month's denominator
+  const perdaFinanceiraMensal = (gap / 100) * fatorPonderacaoAtual;
   const perdaFinanceiraAnual = perdaFinanceiraMensal * 12;
 
-  // Items now carry ocorrencia → custo mensal direto
+  // Loss items with frequency
   const items = lossItems.map((it) => {
     const unit = Number(it.unit_cost || 0);
     const oc = Number(it.ocorrencia_mensal || 0);
@@ -88,10 +91,13 @@ export function computeAll({
   });
 
   const somaPerdas = items.reduce((s, i) => s + i.custo_mensal, 0);
-
-  // Step 4 Impacto: now equals soma das perdas (bottom-up itemizado)
   const impactoMensal = somaPerdas;
   const impactoAnual = impactoMensal * 12;
+
+  // Valor recuperável: meta% × Perda Financeira do GAP
+  const metaPct = Math.max(0, Math.min(100, Number(metaReducaoPct || 0)));
+  const valorRecuperavelMensal = (metaPct / 100) * perdaFinanceiraMensal;
+  const valorRecuperavelAnual = valorRecuperavelMensal * 12;
 
   const perdasPorCategoria = LEAN_WASTES.reduce((acc, w) => {
     acc[w.id] = items
@@ -112,13 +118,16 @@ export function computeAll({
     valor_referencia: ref,
     gap_eficiencia: gap,
     gap_direction: gapDirection,
-    avg_denominator: avgDen,
+    fator_ponderacao_atual: fatorPonderacaoAtual,
     perda_financeira_mensal: perdaFinanceiraMensal,
     perda_financeira_anual: perdaFinanceiraAnual,
     soma_perdas: somaPerdas,
     items,
     impacto_mensal: impactoMensal,
     impacto_anual: impactoAnual,
+    meta_reducao_pct: metaPct,
+    valor_recuperavel_mensal: valorRecuperavelMensal,
+    valor_recuperavel_anual: valorRecuperavelAnual,
     perdas_por_categoria: perdasPorCategoria,
     nivel_desperdicio: nivel,
   };

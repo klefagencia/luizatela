@@ -136,7 +136,7 @@ export default function Step2Benchmark() {
             <div className="flex items-start gap-3 bg-muted/40 border border-border rounded-lg p-4">
               <Warning size={18} weight="duotone" className="text-yellow-400 mt-0.5" />
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Preencha os valores de <span className="text-foreground font-semibold">{denominatorName || "denominador"}</span> na Etapa 01 para que a calculadora estime sua perda financeira mensal.
+                Preencha os valores de <span className="text-foreground font-semibold">{denominatorName || "fator de ponderação"}</span> na Etapa 01 para que a calculadora estime sua perda financeira mensal.
               </p>
             </div>
           ) : (
@@ -148,7 +148,7 @@ export default function Step2Benchmark() {
                 <span className="text-2xl text-muted-foreground font-mono-num tracking-widest">/ MÊS</span>
               </div>
               <p className="text-sm text-muted-foreground mt-4 max-w-2xl leading-relaxed">
-                Aplicando o GAP de <span className="text-foreground font-bold font-mono-num">{formatNum(result.gap_eficiencia, 2)} pts</span> sobre a média mensal de <span className="text-foreground font-semibold">{denominatorName || "denominador"}</span> (<span className="text-foreground font-bold font-mono-num">{formatBRLDecimal(result.avg_denominator)}</span>) — esse já é o impacto direto do seu indicador, independente da identificação detalhada das perdas.
+                Aplicando o GAP de <span className="text-foreground font-bold font-mono-num">{formatNum(result.gap_eficiencia, 2)} pts</span> sobre o <span className="text-foreground font-semibold">{denominatorName || "fator de ponderação"}</span> do último mês apontado (<span className="text-foreground font-bold font-mono-num">{formatBRLDecimal(result.fator_ponderacao_atual)}</span>) — esse já é o impacto direto do seu indicador, independente da identificação detalhada das perdas.
               </p>
 
               <div className="mt-6 pt-5 border-t border-border/40 grid grid-cols-2 lg:grid-cols-3 gap-4">
@@ -162,7 +162,7 @@ export default function Step2Benchmark() {
                 </div>
                 <div className="col-span-2 lg:col-span-1">
                   <div className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">Fórmula</div>
-                  <div className="font-mono-num text-xs mt-1 text-foreground">(GAP ÷ 100) × {denominatorName || "Den."} médio</div>
+                  <div className="font-mono-num text-xs mt-1 text-foreground">(GAP ÷ 100) × {denominatorName || "Fator"} (último mês)</div>
                 </div>
               </div>
             </>
