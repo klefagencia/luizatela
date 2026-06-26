@@ -38,7 +38,7 @@ export default function Step3LossesCosts() {
       className="space-y-8"
     >
       <div>
-        <div className="text-xs uppercase tracking-[0.25em] text-primary font-bold mb-2">Etapa 03 · Perdas e Custos</div>
+        <div className="text-xs uppercase tracking-[0.25em] text-primary font-bold mb-2">Etapa 03 · Desperdícios</div>
         <h2 className="font-display font-black text-3xl lg:text-4xl tracking-tight">Suas perdas identificadas <span className="text-muted-foreground font-normal text-2xl lg:text-3xl">(custos mensais)</span></h2>
         <p className="text-muted-foreground mt-3 max-w-3xl text-sm leading-relaxed">
           Use a lista dos 8 desperdícios Lean como referência e identifique as <span className="text-foreground font-semibold">perdas concretas do seu processo</span>. Para cada perda informe o <span className="text-foreground font-semibold">custo unitário</span> e a <span className="text-foreground font-semibold">ocorrência no mês</span> — a calculadora multiplica os dois para obter o custo mensal real. Ex: <span className="italic text-foreground">"Veículo parado / R$ 1.600 por dia / 3 ocorrências no mês = R$ 4.800/mês"</span>.
@@ -194,7 +194,7 @@ export default function Step3LossesCosts() {
       </div>
 
       <div className="bg-muted/30 border border-border rounded-xl p-5 text-xs text-muted-foreground leading-relaxed">
-        <span className="font-bold text-foreground">Próximo passo:</span> na etapa 4 (Conversão) você verá o <span className="text-destructive font-bold">impacto financeiro total</span> consolidado das perdas identificadas, classificadas por tipo Lean e anualizadas.
+        <span className="font-bold text-foreground">Próximo passo:</span> na etapa 4 (Conversão) você verá o <span className="text-destructive font-bold">impacto anual dos desperdícios e quanto poderá recuperar</span>.
       </div>
     </motion.div>
   );

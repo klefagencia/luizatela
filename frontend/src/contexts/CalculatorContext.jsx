@@ -21,27 +21,28 @@ const defaultHistorical = monthLabels.map((label, i) => ({
 export function CalculatorProvider({ children }) {
   const [step, setStep] = useState(0);
 
-  // Pre-step 1 — efficiency type selector
+  // Tipo de eficiência
   const [efficiencyType, setEfficiencyType] = useState("CUSTO");
 
-  // Step 1
+  // Etapa 1
   const [indicatorName, setIndicatorName] = useState("Custo variável");
-  const [denominatorName, setDenominatorName] = useState("Faturamento");
-  const [unidadeMedida, setUnidadeMedida] = useState("R$");
+  const [denominatorName, setDenominatorName] = useState("Receita");
+  const [unidadeMedida, setUnidadeMedida] = useState("%");
   const [historical, setHistorical] = useState(defaultHistorical);
   const [performanceAtualOverride, setPerformanceAtualOverride] = useState(null);
 
-  // Step 2
+  // Etapa 2
   const [valorReferencia, setValorReferencia] = useState(48);
+  const [vmp, setVmp] = useState(1); // Valor Monetário Perdido por unidade da variável de interesse
 
-  // Step 3
+  // Etapa 3
   const [lossItems, setLossItems] = useState([
     { id: crypto.randomUUID(), description: "Veículo parado (diária)", unit_cost: 1600, ocorrencia_mensal: 3, category: "ESPERA" },
     { id: crypto.randomUUID(), description: "Honorário equipe parada", unit_cost: 800, ocorrencia_mensal: 3, category: "ESPERA" },
     { id: crypto.randomUUID(), description: "Hotel + alimentação extra", unit_cost: 450, ocorrencia_mensal: 3, category: "RECURSOS" },
   ]);
 
-  // Step 4 — Meta de redução (%)
+  // Etapa 4 — Meta de redução (%)
   const [metaReducaoPct, setMetaReducaoPct] = useState(30);
 
   const result = useMemo(
@@ -50,10 +51,12 @@ export function CalculatorProvider({ children }) {
         historical,
         performanceAtualOverride,
         valorReferencia,
+        unidadeMedida,
+        vmp,
         lossItems,
         metaReducaoPct,
       }),
-    [historical, performanceAtualOverride, valorReferencia, lossItems, metaReducaoPct]
+    [historical, performanceAtualOverride, valorReferencia, unidadeMedida, vmp, lossItems, metaReducaoPct]
   );
 
   const value = {
@@ -65,6 +68,7 @@ export function CalculatorProvider({ children }) {
     historical, setHistorical,
     performanceAtualOverride, setPerformanceAtualOverride,
     valorReferencia, setValorReferencia,
+    vmp, setVmp,
     lossItems, setLossItems,
     metaReducaoPct, setMetaReducaoPct,
     result,

@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 const steps = [
   { id: "historical", title: "Avaliação Histórica" },
   { id: "benchmark", title: "Benchmark" },
-  { id: "losses", title: "Perdas e Custos" },
+  { id: "wastes", title: "Desperdícios" },
   { id: "conversion", title: "Conversão" },
 ];
 

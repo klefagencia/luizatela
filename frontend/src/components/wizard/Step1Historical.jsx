@@ -11,7 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   ResponsiveContainer, LineChart, Line, Tooltip, XAxis, YAxis, CartesianGrid,
 } from "recharts";
-import { formatNum, pctOf, EFFICIENCY_TYPES } from "@/lib/calculations";
+import { formatNum, ratioDisplay, isPercentUnit, EFFICIENCY_TYPES } from "@/lib/calculations";
 import { cn } from "@/lib/utils";
 
 const TYPE_ICONS = { CUSTO: Coins, PRODUTIVIDADE: TrendUp, QUALIDADE: Star, TEMPO_CICLO: Timer };
@@ -60,15 +60,17 @@ export default function Step1Historical() {
     setHistorical(historical.filter((_, i) => i !== idx));
   };
 
+  const isCustoOnly = efficiencyType === "CUSTO";
+  const unitIsPct = isPercentUnit(unidadeMedida);
+
   const chartData = historical.map((p) => ({
     label: p.label,
-    Eficiencia: pctOf(p.numerator, p.denominator),
+    Eficiencia: ratioDisplay(p.numerator, p.denominator, unitIsPct),
     Performance: result.performance_atual,
     included: p.included !== false,
   }));
 
   const includedCount = historical.filter((p) => p.included !== false).length;
-  const isCustoOnly = efficiencyType === "CUSTO";
 
   return (
     <motion.div
@@ -191,7 +193,7 @@ export default function Step1Historical() {
           <div className="flex items-center gap-2">
             <ChartLineUp size={18} weight="duotone" className="text-primary" />
             <span className="text-xs uppercase tracking-[0.2em] font-bold text-muted-foreground">
-              Série · {indicatorName || "Variável"} ÷ {denominatorName || "Fator"} (%)
+              Série · {indicatorName || "Variável"} ÷ {denominatorName || "Fator"} ({unidadeMedida || "—"})
             </span>
           </div>
           <div className="text-xs font-mono-num text-muted-foreground">
@@ -209,7 +211,7 @@ export default function Step1Historical() {
                 axisLine={false}
                 tickLine={false}
                 domain={[(dataMin) => Math.max(0, Math.floor((dataMin ?? 0) * 0.9)), (dataMax) => Math.ceil((dataMax ?? 0) * 1.1)]}
-                tickFormatter={(v) => `${v.toFixed(0)}%`}
+                tickFormatter={(v) => unitIsPct ? `${v.toFixed(0)}%` : `${v.toFixed(1)}${unidadeMedida ? ' ' + unidadeMedida : ''}`}
                 allowDecimals
               />
               <Tooltip
@@ -220,7 +222,7 @@ export default function Step1Historical() {
                   fontSize: 12,
                 }}
                 labelStyle={{ color: "hsl(210, 40%, 98%)" }}
-                formatter={(v) => `${Number(v).toFixed(2)}%`}
+                formatter={(v) => unitIsPct ? `${Number(v).toFixed(2)}%` : `${Number(v).toFixed(2)} ${unidadeMedida || ''}`.trim()}
               />
               <Line type="monotone" dataKey="Performance" stroke="hsl(150, 70%, 40%)" strokeWidth={1.5} strokeDasharray="6 4" dot={false} />
               <Line
@@ -267,7 +269,7 @@ export default function Step1Historical() {
             <div>
               <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-primary">Performance Atual</Label>
               <div className="font-mono-num font-bold text-4xl mt-2 text-foreground">
-                {formatNum(result.performance_atual, 2)}<span className="text-2xl text-muted-foreground ml-1">%</span>
+                {formatNum(result.performance_atual, 2)}<span className="text-2xl text-muted-foreground ml-1">{unitIsPct ? '%' : (unidadeMedida || '')}</span>
               </div>
               <p className="text-xs text-muted-foreground mt-1.5">
                 {performanceAtualOverride !== null && performanceAtualOverride !== ""
@@ -347,14 +349,14 @@ export default function Step1Historical() {
                   {denominatorName || "Fator"}
                   {unidadeMedida && <span className="text-muted-foreground/70 normal-case font-normal ml-1">({unidadeMedida})</span>}
                 </th>
-                <th className="text-right font-bold p-3 w-24 text-primary">%</th>
+                <th className="text-right font-bold p-3 w-24 text-primary">{unitIsPct ? '%' : (unidadeMedida || 'Valor')}</th>
                 <th className="w-12"></th>
               </tr>
             </thead>
             <tbody>
               {historical.map((p, i) => {
                 const included = p.included !== false;
-                const pct = pctOf(p.numerator, p.denominator);
+                const pct = ratioDisplay(p.numerator, p.denominator, unitIsPct);
                 return (
                   <tr key={i} className={`border-t border-border/40 hover:bg-muted/20 ${!included ? "opacity-50" : ""}`}>
                     <td className="p-2 text-center">
@@ -394,7 +396,7 @@ export default function Step1Historical() {
                       />
                     </td>
                     <td className="p-2 text-right font-mono-num text-sm text-primary">
-                      {pct.toFixed(2)}%
+                      {unitIsPct ? `${pct.toFixed(2)}%` : pct.toFixed(2)}
                     </td>
                     <td className="p-2 text-center">
                       <Button
