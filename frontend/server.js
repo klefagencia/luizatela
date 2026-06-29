@@ -20,7 +20,7 @@ for (const dir of possibleDirs) {
 }
 
 if (!buildDir) {
-  console.error('ERROR: Could not find build directory! Checked:', possibleDirs);
+  console.error('ERROR: Could not find build directory!');
   buildDir = path.join(__dirname, 'build');
 }
 
@@ -28,7 +28,7 @@ console.log('PORT:', PORT);
 console.log('Build dir:', buildDir);
 
 const mimeTypes = {
-  '.html': 'text/html',
+  '.html': 'text/html; charset=utf-8',
   '.js': 'application/javascript',
   '.css': 'text/css',
   '.json': 'application/json',
@@ -41,9 +41,8 @@ const mimeTypes = {
   '.ttf': 'font/ttf',
 };
 
-const server = http.createServer((req, res) => {
+function handler(req, res) {
   let urlPath = (req.url || '/').split('?')[0];
-  
   let filePath = path.join(buildDir, urlPath === '/' ? 'index.html' : urlPath);
   
   if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
@@ -62,11 +61,12 @@ const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': contentType });
     res.end(content);
   });
-});
+}
 
-// Listen on '::' to accept BOTH IPv4 and IPv6 connections
-// Railway routes traffic via IPv6 internally
-server.listen(PORT, '::', () => {
-  console.log('Server running on port ' + PORT);
-  console.log('Listening on all interfaces (IPv4 + IPv6)');
+// Create ONE server that handles all requests
+const server = http.createServer(handler);
+
+// Listen on 0.0.0.0 (IPv4) - primary for Railway proxy
+server.listen(PORT, '0.0.0.0', () => {
+  console.log('Server running on port ' + PORT + ' (IPv4 0.0.0.0)');
 });
