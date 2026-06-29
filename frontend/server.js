@@ -1,48 +1,20 @@
-const http = require('http');
-const fs = require('fs');
+const express = require('express');
 const path = require('path');
-const port = parseInt(process.env.PORT || '3000', 10);
-const buildDir = path.join(process.cwd(), 'build');
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-console.log('PORT:', port);
-console.log('Build dir:', buildDir);
+// Serve static files from build directory
+const buildPath = path.join(__dirname, 'build');
+console.log('PORT:', PORT);
+console.log('Build path:', buildPath);
 
-const mimeTypes = {
-  '.html': 'text/html',
-  '.js': 'application/javascript',
-  '.css': 'text/css',
-  '.json': 'application/json',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.svg': 'image/svg+xml',
-  '.ico': 'image/x-icon',
-  '.woff': 'font/woff',
-  '.woff2': 'font/woff2',
-  '.ttf': 'font/ttf'
-};
+app.use(express.static(buildPath));
 
-const server = http.createServer((req, res) => {
-  const urlPath = req.url.split('?')[0];
-  let filePath = path.join(buildDir, urlPath === '/' ? 'index.html' : urlPath);
-
-  if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
-    filePath = path.join(buildDir, 'index.html');
-  }
-
-  const ext = path.extname(filePath);
-  const contentType = mimeTypes[ext] || 'application/octet-stream';
-
-  fs.readFile(filePath, (err, content) => {
-    if (err) {
-      res.writeHead(500);
-      res.end('Error: ' + err.code);
-      return;
-    }
-    res.writeHead(200, { 'Content-Type': contentType });
-    res.end(content);
-  });
+// For React Router - serve index.html for all routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(buildPath, 'index.html'));
 });
 
-server.listen(port, '0.0.0.0', () => {
-  console.log('Server running on port ' + port);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log('Server running on port ' + PORT);
 });
