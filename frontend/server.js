@@ -1,4 +1,5 @@
 const http = require('http');
+const net = require('net');
 const fs = require('fs');
 const path = require('path');
 
@@ -63,10 +64,18 @@ function handler(req, res) {
   });
 }
 
-// Create ONE server that handles all requests
 const server = http.createServer(handler);
 
-// Listen on 0.0.0.0 (IPv4) - primary for Railway proxy
-server.listen(PORT, '0.0.0.0', () => {
-  console.log('Server running on port ' + PORT + ' (IPv4 0.0.0.0)');
+// Listen on :: with ipv6Only: false - accepts BOTH IPv4 and IPv6
+// When ipv6Only is false, IPv4 connections are also accepted via IPv4-mapped IPv6
+server.listen({ port: PORT, host: '::', ipv6Only: false }, () => {
+  console.log('Server running on port ' + PORT + ' (dual-stack IPv4+IPv6)');
+});
+
+server.on('error', (err) => {
+  console.error('Server error:', err.message);
+  // Fallback to IPv4 only
+  server.listen({ port: PORT, host: '0.0.0.0' }, () => {
+    console.log('Server running on port ' + PORT + ' (IPv4 fallback)');
+  });
 });
