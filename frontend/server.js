@@ -2,10 +2,14 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const port = parseInt(process.env.PORT || '3000', 10);
+const buildDir = path.join(process.cwd(), 'build');
+
+console.log('PORT:', port);
+console.log('Build dir:', buildDir);
 
 const mimeTypes = {
   '.html': 'text/html',
-  '.js': 'application/javascript', 
+  '.js': 'application/javascript',
   '.css': 'text/css',
   '.json': 'application/json',
   '.png': 'image/png',
@@ -13,19 +17,21 @@ const mimeTypes = {
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon',
   '.woff': 'font/woff',
-  '.woff2': 'font/woff2'
+  '.woff2': 'font/woff2',
+  '.ttf': 'font/ttf'
 };
 
 const server = http.createServer((req, res) => {
-  let filePath = path.join(__dirname, 'build', req.url === '/' ? 'index.html' : req.url);
-  
+  const urlPath = req.url.split('?')[0];
+  let filePath = path.join(buildDir, urlPath === '/' ? 'index.html' : urlPath);
+
   if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
-    filePath = path.join(__dirname, 'build', 'index.html');
+    filePath = path.join(buildDir, 'index.html');
   }
-  
+
   const ext = path.extname(filePath);
   const contentType = mimeTypes[ext] || 'application/octet-stream';
-  
+
   fs.readFile(filePath, (err, content) => {
     if (err) {
       res.writeHead(500);
