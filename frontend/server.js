@@ -3,12 +3,12 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = parseInt(process.env.PORT || '3000');
-// Try multiple possible build locations
+
+// Find build directory
 const possibleDirs = [
   path.join(__dirname, 'build'),
   path.join(process.cwd(), 'build'),
   '/app/build',
-  '/app/frontend/build'
 ];
 
 let buildDir = null;
@@ -44,10 +44,8 @@ const mimeTypes = {
 const server = http.createServer((req, res) => {
   let urlPath = (req.url || '/').split('?')[0];
   
-  // Serve static files
   let filePath = path.join(buildDir, urlPath === '/' ? 'index.html' : urlPath);
   
-  // If file doesn't exist, serve index.html (React Router fallback)
   if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
     filePath = path.join(buildDir, 'index.html');
   }
@@ -66,6 +64,9 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(PORT, '0.0.0.0', () => {
+// Listen on '::' to accept BOTH IPv4 and IPv6 connections
+// Railway routes traffic via IPv6 internally
+server.listen(PORT, '::', () => {
   console.log('Server running on port ' + PORT);
+  console.log('Listening on all interfaces (IPv4 + IPv6)');
 });
