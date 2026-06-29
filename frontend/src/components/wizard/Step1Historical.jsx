@@ -187,81 +187,6 @@ export default function Step1Historical() {
         </div>
       </div>
 
-      {/* Chart preview */}
-      <div className="bg-card border border-border rounded-xl p-5 lg:p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <ChartLineUp size={18} weight="duotone" className="text-primary" />
-            <span className="text-xs uppercase tracking-[0.2em] font-bold text-muted-foreground">
-              Série · {indicatorName || "Variável"} ÷ {denominatorName || "Fator"} ({unidadeMedida || "—"})
-            </span>
-          </div>
-          <div className="text-xs font-mono-num text-muted-foreground">
-            {includedCount}/{historical.length} pontos
-          </div>
-        </div>
-        <div className="h-56">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 8, right: 16, bottom: 0, left: -8 }}>
-              <CartesianGrid stroke="hsl(217.2, 32.6%, 17.5%)" strokeDasharray="2 4" vertical={false} />
-              <XAxis dataKey="label" stroke="hsl(215, 20.2%, 55%)" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-              <YAxis
-                stroke="hsl(215, 20.2%, 55%)"
-                tick={{ fontSize: 10 }}
-                axisLine={false}
-                tickLine={false}
-                domain={[(dataMin) => Math.max(0, Math.floor((dataMin ?? 0) * 0.9)), (dataMax) => Math.ceil((dataMax ?? 0) * 1.1)]}
-                tickFormatter={(v) => unitIsPct ? `${v.toFixed(0)}%` : `${v.toFixed(1)}${unidadeMedida ? ' ' + unidadeMedida : ''}`}
-                allowDecimals
-              />
-              <Tooltip
-                contentStyle={{
-                  background: "hsl(222.2, 47%, 7%)",
-                  border: "1px solid hsl(217.2, 32.6%, 25%)",
-                  borderRadius: 8,
-                  fontSize: 12,
-                }}
-                labelStyle={{ color: "hsl(210, 40%, 98%)" }}
-                formatter={(v) => unitIsPct ? `${Number(v).toFixed(2)}%` : `${Number(v).toFixed(2)} ${unidadeMedida || ''}`.trim()}
-              />
-              <Line type="monotone" dataKey="Performance" stroke="hsl(150, 70%, 40%)" strokeWidth={1.5} strokeDasharray="6 4" dot={false} />
-              <Line
-                type="monotone"
-                dataKey="Eficiencia"
-                stroke="hsl(217.2, 91.2%, 59.8%)"
-                strokeWidth={2.5}
-                dot={(dotProps) => {
-                  const { cx, cy, payload, index } = dotProps;
-                  const isIncluded = payload.included;
-                  return (
-                    <circle
-                      key={index}
-                      cx={cx}
-                      cy={cy}
-                      r={isIncluded ? 4 : 3}
-                      fill={isIncluded ? "hsl(217.2, 91.2%, 59.8%)" : "hsl(222.2, 47%, 9%)"}
-                      stroke="hsl(217.2, 91.2%, 59.8%)"
-                      strokeWidth={1.5}
-                    />
-                  );
-                }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-        <div className="mt-3 flex flex-wrap items-center gap-4 text-[10px] uppercase tracking-widest text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-primary"></span> Pontos selecionados
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full border border-primary bg-card"></span> Excluídos (atípicos)
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="w-3 h-[2px] bg-emerald-500"></span> Performance Atual (média)
-          </span>
-        </div>
-      </div>
-
       {/* Performance Atual */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="bg-card border border-primary/40 rounded-xl p-6">
@@ -415,6 +340,81 @@ export default function Step1Historical() {
               })}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* Chart preview · após entrada de dados */}
+      <div className="bg-card border border-border rounded-xl p-5 lg:p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <ChartLineUp size={18} weight="duotone" className="text-primary" />
+            <span className="text-xs uppercase tracking-[0.2em] font-bold text-muted-foreground">
+              Série · {indicatorName || "Variável"} ÷ {denominatorName || "Fator"} ({unidadeMedida || "—"})
+            </span>
+          </div>
+          <div className="text-xs font-mono-num text-muted-foreground">
+            {includedCount}/{historical.length} pontos
+          </div>
+        </div>
+        <div className="h-56">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={chartData} margin={{ top: 8, right: 16, bottom: 0, left: -8 }}>
+              <CartesianGrid stroke="hsl(217.2, 32.6%, 17.5%)" strokeDasharray="2 4" vertical={false} />
+              <XAxis dataKey="label" stroke="hsl(215, 20.2%, 55%)" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+              <YAxis
+                stroke="hsl(215, 20.2%, 55%)"
+                tick={{ fontSize: 10 }}
+                axisLine={false}
+                tickLine={false}
+                domain={[(dataMin) => Math.max(0, Math.floor((dataMin ?? 0) * 0.9)), (dataMax) => Math.ceil((dataMax ?? 0) * 1.1)]}
+                tickFormatter={(v) => unitIsPct ? `${v.toFixed(0)}%` : `${v.toFixed(1)}${unidadeMedida ? ' ' + unidadeMedida : ''}`}
+                allowDecimals
+              />
+              <Tooltip
+                contentStyle={{
+                  background: "hsl(222.2, 47%, 7%)",
+                  border: "1px solid hsl(217.2, 32.6%, 25%)",
+                  borderRadius: 8,
+                  fontSize: 12,
+                }}
+                labelStyle={{ color: "hsl(210, 40%, 98%)" }}
+                formatter={(v) => unitIsPct ? `${Number(v).toFixed(2)}%` : `${Number(v).toFixed(2)} ${unidadeMedida || ''}`.trim()}
+              />
+              <Line type="linear" dataKey="Performance" stroke="hsl(150, 70%, 40%)" strokeWidth={1.5} strokeDasharray="6 4" dot={false} />
+              <Line
+                type="linear"
+                dataKey="Eficiencia"
+                stroke="hsl(217.2, 91.2%, 59.8%)"
+                strokeWidth={2.5}
+                dot={(dotProps) => {
+                  const { cx, cy, payload, index } = dotProps;
+                  const isIncluded = payload.included;
+                  return (
+                    <circle
+                      key={index}
+                      cx={cx}
+                      cy={cy}
+                      r={isIncluded ? 4 : 3}
+                      fill={isIncluded ? "hsl(217.2, 91.2%, 59.8%)" : "hsl(222.2, 47%, 9%)"}
+                      stroke="hsl(217.2, 91.2%, 59.8%)"
+                      strokeWidth={1.5}
+                    />
+                  );
+                }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-4 text-[10px] uppercase tracking-widest text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-primary"></span> Pontos selecionados
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full border border-primary bg-card"></span> Excluídos (atípicos)
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="w-3 h-[2px] bg-emerald-500"></span> Performance Atual (média)
+          </span>
         </div>
       </div>
     </motion.div>

@@ -148,7 +148,7 @@ export default function LandingPage() {
             {[
               { n: "01", t: "Avaliação Histórica", d: "Aprenda a analisar o seu histórico de eficiência para descobrir a sua performance atual.", icon: ChartBar },
               { n: "02", t: "Benchmark", d: "Pesquise e descubra qual é o valor de referência da sua performance ideal e calcule o seu GAP de Eficiência.", icon: Target },
-              { n: "03", t: "Perdas e Custos", d: "Por meio da lista dos 8 desperdícios Lean identifique as perdas de processo envolvidas e seus custos unitários.", icon: Factory },
+              { n: "03", t: "Desperdícios", d: "Por meio da lista dos 8 desperdícios Lean identifique as perdas de processo envolvidas e seus custos unitários.", icon: Factory },
               { n: "04", t: "Conversão", d: "Pondere as perdas identificadas pelo volume de produção e calcule o impacto financeiro anual do desperdício em sua operação.", icon: Warning },
             ].map((step, i) => (
               <motion.div
