@@ -29,14 +29,14 @@ export default function Step2Benchmark() {
       className="space-y-8"
     >
       <div>
-        <div className="text-xs uppercase tracking-[0.25em] text-primary font-bold mb-2">Etapa 02 · Benchmark</div>
-        <h2 className="font-display font-black text-3xl lg:text-4xl tracking-tight">Qual é o valor de referência ideal?</h2>
+        <div className="text-xs uppercase tracking-[0.25em] text-primary font-bold mb-2">Etapa 02 Â· Benchmark</div>
+        <h2 className="font-display font-black text-3xl lg:text-4xl tracking-tight">Qual Ã© o valor de referÃªncia ideal?</h2>
         <p className="text-muted-foreground mt-3 max-w-2xl text-sm leading-relaxed">
-          Pesquise e descubra qual é o <span className="text-foreground font-semibold">valor de referência da sua performance ideal</span> — pode ser uma meta interna, um competidor ou um padrão de mercado.
+          Pesquise e descubra qual Ã© o <span className="text-foreground font-semibold">valor de referÃªncia da sua performance ideal</span> â pode ser uma meta interna, um competidor ou um padrÃ£o de mercado.
         </p>
       </div>
 
-      {/* Q6 · Benchmark input — respects user's unit */}
+      {/* Q6 Â· Benchmark input â respects user's unit */}
       <div className="bg-card border border-primary/40 rounded-2xl p-8 lg:p-10 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-48 h-48 rounded-full pointer-events-none"
           style={{ background: "radial-gradient(closest-side, hsla(217.2, 91.2%, 59.8%, 0.12), transparent 70%)" }} />
@@ -45,11 +45,11 @@ export default function Step2Benchmark() {
             <div className="flex items-center gap-2">
               <Target size={20} weight="duotone" className="text-primary" />
               <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-primary">
-                Q6 · Valor de referência (Benchmark)
+                Q6 Â· Valor de referÃªncia (Benchmark)
               </Label>
             </div>
             <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground bg-muted/60 border border-border rounded-full px-2.5 py-1">
-              unidade: <span className="text-foreground font-mono-num">{unitDisplay || "—"}</span>
+              unidade: <span className="text-foreground font-mono-num">{unitDisplay || "â"}</span>
             </span>
           </div>
           <div className="flex items-baseline gap-3">
@@ -97,7 +97,7 @@ export default function Step2Benchmark() {
               <TrendUp size={18} weight="duotone" className="text-emerald-400" />
             )}
             <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">
-              Seu GAP de Eficiência
+              Seu GAP de EficiÃªncia
             </Label>
           </div>
           <div className="flex items-baseline gap-3">
@@ -124,13 +124,13 @@ export default function Step2Benchmark() {
         <div className="flex items-center gap-2 mb-3">
           <Money size={18} weight="duotone" className="text-primary" />
           <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">
-            VMP · Valor Monetário Perdido por unidade de <span className="text-foreground">{indicatorName || "variável"}</span>
+            VMP Â· Valor MonetÃ¡rio Perdido por unidade de <span className="text-foreground">{indicatorName || "variÃ¡vel"}</span>
           </Label>
         </div>
         <p className="text-sm text-muted-foreground mb-4 leading-relaxed max-w-3xl">
-          Quanto você perde em <span className="text-foreground font-semibold">R$</span> para cada unidade da sua variável de interesse?
+          Quanto vocÃª perde em <span className="text-foreground font-semibold">R$</span> para cada unidade da sua variÃ¡vel de interesse?
           <span className="block mt-1.5 text-xs italic">
-            Ex: Custo (variável já em R$) → <span className="text-foreground font-mono-num">R$ 1,00</span> · Produtividade → <span className="text-foreground font-mono-num">R$ 50/ton</span> · Qualidade → <span className="text-foreground font-mono-num">R$ 280/ton</span> · Tempo de Ciclo → <span className="text-foreground font-mono-num">R$ 420/atendimento</span>
+            Ex: Custo (variÃ¡vel jÃ¡ em R$) â <span className="text-foreground font-mono-num">R$ 1,00</span> Â· Produtividade â <span className="text-foreground font-mono-num">R$ 50/ton</span> Â· Qualidade â <span className="text-foreground font-mono-num">R$ 280/ton</span> Â· Tempo de Ciclo â <span className="text-foreground font-mono-num">R$ 420/atendimento</span>
           </span>
         </p>
         <div className="flex items-baseline gap-3 max-w-md">
@@ -144,11 +144,11 @@ export default function Step2Benchmark() {
             onChange={(e) => setVmp(Number(e.target.value || 0))}
             className="bg-muted border-border h-14 font-mono-num font-bold text-2xl flex-1"
           />
-          <span className="text-muted-foreground text-xs uppercase tracking-widest">/ {unitIsPct ? "unidade da variável" : (unidadeMedida || "unidade")}</span>
+          <span className="text-muted-foreground text-xs uppercase tracking-widest">/ {unitIsPct ? "unidade da variÃ¡vel" : (unidadeMedida || "unidade")}</span>
         </div>
       </div>
 
-      {/* PMM · Perda Monetária Mensal — top-down */}
+      {/* PMM Â· Perda MonetÃ¡ria Mensal â top-down */}
       <div
         data-testid="pmm-card"
         className="rounded-2xl border-2 border-destructive/40 bg-gradient-to-br from-destructive/10 via-card to-card p-8 lg:p-10 relative overflow-hidden"
@@ -159,7 +159,7 @@ export default function Step2Benchmark() {
           <div className="flex items-center gap-2 mb-4">
             <Coins size={20} weight="duotone" className="text-destructive" />
             <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-destructive">
-              PMM · Perda Monetária Mensal
+              PMM
             </Label>
           </div>
 
@@ -167,7 +167,7 @@ export default function Step2Benchmark() {
             <div className="flex items-start gap-3 bg-muted/40 border border-border rounded-lg p-4">
               <Warning size={18} weight="duotone" className="text-yellow-400 mt-0.5" />
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Preencha os valores de <span className="text-foreground font-semibold">{denominatorName || "fator de ponderação"}</span> na Etapa 01 e informe o <span className="text-foreground font-semibold">VMP</span> acima para que a calculadora estime sua perda mensal.
+                Preencha os valores de <span className="text-foreground font-semibold">{denominatorName || "fator de ponderaÃ§Ã£o"}</span> na Etapa 01 e informe o <span className="text-foreground font-semibold">VMP</span> acima para que a calculadora estime sua perda mensal.
               </p>
             </div>
           ) : (
@@ -176,23 +176,19 @@ export default function Step2Benchmark() {
                 <span className="font-display font-black text-5xl lg:text-7xl tracking-tight text-destructive font-mono-num">
                   <CountUp end={result.pmm} duration={2.4} separator="." decimal="," prefix="R$ " decimals={2} preserveValue />
                 </span>
-                <span className="text-2xl text-muted-foreground font-mono-num tracking-widest">/ MÊS</span>
+                <span className="text-2xl text-muted-foreground font-mono-num tracking-widest">/ MÃS</span>
               </div>
               <p className="text-sm text-muted-foreground mt-4 max-w-3xl leading-relaxed">
-                <span className="font-mono-num text-foreground">PMM = VMP × GAP × FPM</span> = <span className="text-foreground font-bold font-mono-num">{formatBRLDecimal(result.vmp)}</span> × <span className="text-foreground font-bold font-mono-num">{formatNum(result.gap_eficiencia, 2)}{unitIsPct ? "%" : ` ${unitDisplay}`}</span> × <span className="text-foreground font-bold font-mono-num">{formatNum(result.fpm, 2)}</span>
+                <span className="font-mono-num text-foreground">PMM = VMP Ã GAP Ã FPM</span> = <span className="text-foreground font-bold font-mono-num">{formatBRLDecimal(result.vmp)}</span> Ã <span className="text-foreground font-bold font-mono-num">{formatNum(result.gap_eficiencia, 2)}{unitIsPct ? "%" : ` ${unitDisplay}`}</span> Ã <span className="text-foreground font-bold font-mono-num">{formatNum(result.fpm, 2)}</span>
               </p>
 
               <div className="mt-6 pt-5 border-t border-border/40 grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
-                  <div className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">PMM Mensal</div>
+                  <div className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">PMM</div>
                   <div className="font-mono-num font-bold text-base mt-1 text-destructive">{formatBRLDecimal(result.pmm)}</div>
                 </div>
                 <div>
-                  <div className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">PMM Anual</div>
-                  <div className="font-mono-num font-bold text-base mt-1 text-destructive">{formatBRLDecimal(result.pmm_anual)}</div>
-                </div>
-                <div>
-                  <div className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">FPM (média)</div>
+                  <div className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">FPM (mÃ©dia)</div>
                   <div className="font-mono-num font-bold text-base mt-1">{formatNum(result.fpm, 2)}</div>
                 </div>
                 <div>
