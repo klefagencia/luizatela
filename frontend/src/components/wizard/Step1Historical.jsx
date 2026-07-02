@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  ResponsiveContainer, LineChart, Line, Tooltip, XAxis, YAxis, CartesianGrid,
+  ResponsiveContainer, LineChart, Line, Tooltip as RechartsTooltip, XAxis, YAxis, CartesianGrid,
 } from "recharts";
 import { formatNum, ratioDisplay, isPercentUnit, EFFICIENCY_TYPES } from "@/lib/calculations";
 import { cn } from "@/lib/utils";
@@ -178,7 +178,7 @@ export default function Step1Historical() {
                   <button type="button" className="text-muted-foreground hover:text-foreground transition-colors ml-1"><Info size={14} weight="duotone" /></button>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-sm text-left">
-                  <p className="text-xs leading-relaxed">Caso sua variável de interesse seja ponderável, informe qual é o denominador da equação e preencha as duas colunas com os dados dos meses. Exemplos: (1) Custo variável (R$) por Faturamento (R$) — neste caso o faturamento é o fator de ponderação e o custo variável é a variável de interesse. (2) Volume produzido (unidade, kg, tonelada, m, m2, etc) por Mês — neste caso o mês é o fator de ponderação. O volume precisa ser mensalizado. (3) Paradas de máquina (horas, nº paradas, etc) por Mês — neste caso o mês é o fator de ponderação e o número de paradas precisa ser mensalizado. (4) Tempo de carregamento (horas, minutos, segundos) por Mês — o tempo de carregamento é a variável de interesse e o tempo precisa representar valor médio do mês. Caso sua variável NÃO seja ponderável, a coluna de dados deve ser preenchida com valores mensalizados e o fator de ponderação deve ser preenchido com o número 1.</p>
+                  <p className="text-xs leading-relaxed">Caso sua variável de interesse seja ponderável, informe qual é o denominador da equação e preencha as duas colunas com os dados dos meses. Exemplos: (1) Custo variável (R$) por Faturamento (R$). (2) Volume produzido (unidade, kg, tonelada, m, m2, etc) por Mês — o volume precisa ser mensalizado. (3) Paradas de máquina (horas, nº paradas, etc) por Mês — o número de paradas precisa ser mensalizado. (4) Tempo de carregamento (horas, minutos, segundos) por Mês — o tempo precisa representar valor médio do mês. Caso a variável NÃO seja ponderável, preencha o fator com 1.</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -399,8 +399,7 @@ export default function Step1Historical() {
                 tickFormatter={(v) => unitIsPct ? `${v.toFixed(0)}%` : `${v.toFixed(1)}${unidadeMedida ? ' ' + unidadeMedida : ''}`}
                 allowDecimals
               />
-              <Tooltip
-                contentStyle={{
+              <RechartsTooltip contentStyle={{
                   background: "hsl(222.2, 47%, 7%)",
                   border: "1px solid hsl(217.2, 32.6%, 25%)",
                   borderRadius: 8,
