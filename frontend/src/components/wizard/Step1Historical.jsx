@@ -54,7 +54,7 @@ export default function Step1Historical() {
   const addPoint = () => {
     setHistorical([
       ...historical,
-      { label: `MÃªs ${historical.length + 1}`, numerator: 0, denominator: 0, included: true },
+      { label: `Mês ${historical.length + 1}`, numerator: 0, denominator: 0, included: true },
     ]);
   };
   const removePoint = (idx) => {
@@ -81,20 +81,20 @@ export default function Step1Historical() {
       className="space-y-8"
     >
       <div>
-        <div className="text-xs uppercase tracking-[0.25em] text-primary font-bold mb-2">Etapa 01 Â· AvaliaÃ§Ã£o HistÃ³rica</div>
-        <h2 className="font-display font-black text-3xl lg:text-4xl tracking-tight">Defina seu indicador e o histÃ³rico</h2>
+        <div className="text-xs uppercase tracking-[0.25em] text-primary font-bold mb-2">Etapa 01 · Avaliação Histórica</div>
+        <h2 className="font-display font-black text-3xl lg:text-4xl tracking-tight">Defina seu indicador e o histórico</h2>
         <p className="text-muted-foreground mt-3 max-w-3xl text-sm leading-relaxed">
-          Comece escolhendo o <span className="text-foreground font-semibold">tipo de eficiÃªncia</span>, dÃª nomes Ã s variÃ¡veis e preencha mÃªs a mÃªs. A calculadora computa o percentual <span className="font-mono-num text-foreground">variÃ¡vel Ã· fator de ponderaÃ§Ã£o Ã 100</span> e a sua <span className="text-foreground font-semibold">Performance Atual</span>.
+          Comece escolhendo o <span className="text-foreground font-semibold">tipo de eficiência</span>, dê nomes às variáveis e preencha mês a mês. A calculadora computa o percentual <span className="font-mono-num text-foreground">variável ÷ fator de ponderação × 100</span> e a sua <span className="text-foreground font-semibold">Performance Atual</span>.
         </p>
       </div>
 
-      {/* PRE-Q Â· Efficiency type selector */}
+      {/* PRE-Q · Efficiency type selector */}
       <div className="bg-card border border-border rounded-xl p-5 lg:p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Sparkle size={18} weight="duotone" className="text-primary" />
             <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">
-              Qual tipo de eficiÃªncia serÃ¡ avaliado?
+              Qual tipo de eficiência será avaliado?
             </Label>
           </div>
           {!isCustoOnly && (
@@ -139,13 +139,13 @@ export default function Step1Historical() {
         </div>
       </div>
 
-      {/* Q1, Q2, Q3 â VariÃ¡vel de interesse + Fator de ponderaÃ§Ã£o + Unidade */}
+      {/* Q1, Q2, Q3 â Variável de interesse + Fator de ponderação + Unidade */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-card border border-border rounded-xl p-5">
           <div className="flex items-center gap-2 mb-3">
             <Tag size={16} weight="duotone" className="text-primary" />
             <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">
-              VariÃ¡vel de interesse
+              Variável de interesse
             </Label>
             <TooltipProvider>
               <Tooltip>
@@ -153,7 +153,7 @@ export default function Step1Historical() {
                   <button type="button" className="text-muted-foreground hover:text-foreground transition-colors ml-1"><Info size={14} weight="duotone" /></button>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-sm text-left">
-                  <p className="text-xs leading-relaxed">O número que representa o processo a analisar. Pode ser custo (variável, fixo, etc), volume produzido (peça, tarefa, volume, etc), uma característica de qualidade (residência, refugo, peças de máquina, etc) ou tempo de execução (preparo, carregamento, expedição, etc).</p>
+                  <p className="text-xs leading-relaxed">É o número que representa o processo que você quer analisar. Pode estar associado a um determinado custo (variável, fixo, etc), ou volume produzido (peça, tarefa, fluxo, etc), ou uma característica de qualidade a ser melhorada (resistência, refugo, peças de máquina, etc), ou um tempo de execução de determinada atividade que precisa ser reduzido (preparo, carregamento, expedição, etc).</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -162,7 +162,7 @@ export default function Step1Historical() {
             data-testid="input-indicator-name"
             value={indicatorName}
             onChange={(e) => setIndicatorName(e.target.value)}
-            placeholder="Ex: Custo variÃ¡vel, Refugo, Horas paradas..."
+            placeholder="Ex: Custo variável, Refugo, Horas paradas..."
             className="bg-muted border-border h-12 text-base"
           />
         </div>
@@ -170,7 +170,7 @@ export default function Step1Historical() {
           <div className="flex items-center gap-2 mb-3">
             <Tag size={16} weight="duotone" className="text-primary" />
             <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">
-              Fator de ponderaÃ§Ã£o
+              Fator de ponderação
             </Label>
             <TooltipProvider>
               <Tooltip>
@@ -178,7 +178,7 @@ export default function Step1Historical() {
                   <button type="button" className="text-muted-foreground hover:text-foreground transition-colors ml-1"><Info size={14} weight="duotone" /></button>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-sm text-left">
-                  <p className="text-xs leading-relaxed">Caso a variável de interesse seja ponderável, informe o denominador da equação e preencha as duas colunas com os dados mensais. Exemplos: Custo variável (R$) ÷ Faturamento (R$); Volume produzido ÷ Mês; Paradas de máquina ÷ Mês. Se não for ponderável, preencha o fator com 1.</p>
+                  <p className="text-xs leading-relaxed">Caso sua variável de interesse seja ponderável, informe qual é o denominador da equação e preencha as duas colunas com os dados dos meses. Exemplos: (1) Custo variável (R$) por Faturamento (R$) — neste caso o faturamento é o fator de ponderação e o custo variável é a variável de interesse. (2) Volume produzido (unidade, kg, tonelada, m, m2, etc) por Mês — neste caso o mês é o fator de ponderação. O volume precisa ser mensalizado. (3) Paradas de máquina (horas, nº paradas, etc) por Mês — neste caso o mês é o fator de ponderação e o número de paradas precisa ser mensalizado. (4) Tempo de carregamento (horas, minutos, segundos) por Mês — o tempo de carregamento é a variável de interesse e o tempo precisa representar valor médio do mês. Caso sua variável NÃO seja ponderável, a coluna de dados deve ser preenchida com valores mensalizados e o fator de ponderação deve ser preenchido com o número 1.</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -187,7 +187,7 @@ export default function Step1Historical() {
             data-testid="input-denominator-name"
             value={denominatorName}
             onChange={(e) => setDenominatorName(e.target.value)}
-            placeholder="Ex: Faturamento, ProduÃ§Ã£o total, Horas planejadas..."
+            placeholder="Ex: Faturamento, Produção total, Horas planejadas..."
             className="bg-muted border-border h-12 text-base"
           />
         </div>
@@ -203,7 +203,7 @@ export default function Step1Historical() {
                   <button type="button" className="text-muted-foreground hover:text-foreground transition-colors ml-1"><Info size={14} weight="duotone" /></button>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-sm text-left">
-                  <p className="text-xs leading-relaxed">Caso sua variável de interesse seja ponderável, preencha com "%". Caso contrário, preencha com a unidade da sua variável de interesse (ex: R$, peças, horas, kg, ton).</p>
+                  <p className="text-xs leading-relaxed">Caso sua variável de interesse seja ponderável, a unidade de medida deverá ser preenchida com "%". Caso contrário, preencha com a unidade de medida da sua variável de interesse (ex: R$, peças, horas, kg, ton).</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -230,7 +230,7 @@ export default function Step1Historical() {
               <p className="text-xs text-muted-foreground mt-1.5">
                 {performanceAtualOverride !== null && performanceAtualOverride !== ""
                   ? "Valor manual"
-                  : `MÃ©dia dos ${includedCount} ponto(s) selecionado(s)`}
+                  : `Média dos ${includedCount} ponto(s) selecionado(s)`}
               </p>
             </div>
             <Sparkle size={20} weight="duotone" className="text-primary" />
@@ -247,9 +247,9 @@ export default function Step1Historical() {
         </div>
 
         <div className="bg-card border border-border rounded-xl p-6">
-          <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">Q5 Â· ExclusÃ£o de pontos atÃ­picos</Label>
+          <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">Q5 · Exclusão de pontos atípicos</Label>
           <p className="text-sm text-foreground mt-2 leading-relaxed">
-            Quando hÃ¡ uma <span className="font-semibold">mudanÃ§a de patamar</span> ou um <span className="font-semibold">ponto atÃ­pico</span>, desmarque a caixa na tabela para excluÃ­-lo do cÃ¡lculo da Performance Atual.
+            Quando há uma <span className="font-semibold">mudança de patamar</span> ou um <span className="font-semibold">ponto atípico</span>, desmarque a caixa na tabela para excluí-lo do cálculo da Performance Atual.
           </p>
           <div className="flex gap-2 mt-4">
             <Button
@@ -270,7 +270,7 @@ export default function Step1Historical() {
               data-testid="deselect-all-historical"
               className="h-8 border-border"
             >
-              Limpar seleÃ§Ã£o
+              Limpar seleção
             </Button>
           </div>
         </div>
@@ -279,7 +279,7 @@ export default function Step1Historical() {
       {/* Editable historical table */}
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-          <span className="text-xs uppercase tracking-[0.2em] font-bold text-muted-foreground">Q4 Â· HistÃ³rico mÃªs a mÃªs</span>
+          <span className="text-xs uppercase tracking-[0.2em] font-bold text-muted-foreground">Q4 · Histórico mês a mês</span>
           <Button
             type="button"
             variant="outline"
@@ -288,7 +288,7 @@ export default function Step1Historical() {
             data-testid="add-historical-point"
             className="h-8 border-border"
           >
-            <Plus size={14} weight="bold" /> Adicionar mÃªs
+            <Plus size={14} weight="bold" /> Adicionar mês
           </Button>
         </div>
         <div className="max-h-96 overflow-y-auto">
@@ -296,9 +296,9 @@ export default function Step1Historical() {
             <thead className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground bg-muted/40 sticky top-0 backdrop-blur">
               <tr>
                 <th className="w-14 text-center font-bold p-3">Usar</th>
-                <th className="text-left font-bold p-3 w-28">PerÃ­odo</th>
+                <th className="text-left font-bold p-3 w-28">Período</th>
                 <th className="text-right font-bold p-3">
-                  {indicatorName || "VariÃ¡vel"}
+                  {indicatorName || "Variável"}
                 </th>
                 <th className="text-right font-bold p-3">
                   {denominatorName || "Fator"}
@@ -372,13 +372,13 @@ export default function Step1Historical() {
         </div>
       </div>
 
-      {/* Chart preview Â· apÃ³s entrada de dados */}
+      {/* Chart preview · após entrada de dados */}
       <div className="bg-card border border-border rounded-xl p-5 lg:p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <ChartLineUp size={18} weight="duotone" className="text-primary" />
             <span className="text-xs uppercase tracking-[0.2em] font-bold text-muted-foreground">
-              SÃ©rie Â· {indicatorName || "VariÃ¡vel"} Ã· {denominatorName || "Fator"} ({unidadeMedida || "â"})
+              Série · {indicatorName || "Variável"} ÷ {denominatorName || "Fator"} ({unidadeMedida || "â"})
             </span>
           </div>
           <div className="text-xs font-mono-num text-muted-foreground">
@@ -439,10 +439,10 @@ export default function Step1Historical() {
             <span className="w-2.5 h-2.5 rounded-full bg-primary"></span> Pontos selecionados
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full border border-primary bg-card"></span> ExcluÃ­dos (atÃ­picos)
+            <span className="w-2.5 h-2.5 rounded-full border border-primary bg-card"></span> Excluídos (atípicos)
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="w-3 h-[2px] bg-emerald-500"></span> Performance Atual (mÃ©dia)
+            <span className="w-3 h-[2px] bg-emerald-500"></span> Performance Atual (média)
           </span>
         </div>
       </div>
