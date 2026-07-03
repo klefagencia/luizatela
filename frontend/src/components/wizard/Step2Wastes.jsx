@@ -180,7 +180,7 @@ export default function Step2Benchmark() {
               </div>
               <p className="text-sm text-muted-foreground mt-4 max-w-3xl leading-relaxed">
                 <span className="font-mono-num text-foreground">PMM = VMP × GAP × FPM</span> = <span className="text-foreground font-bold font-mono-num">{formatBRLDecimal(result.vmp)}</span> × <span className="text-foreground font-bold font-mono-num">{formatNum(result.gap_eficiencia, 2)}{unitIsPct ? "%" : ` ${unitDisplay}`}</span> × <span className="text-foreground font-bold font-mono-num">{formatNum(result.fpm, 2)}</span>
-PMM
+              </p>
               <div className="mt-6 pt-5 border-t border-border/40 grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                   <div className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">PMM</div>
