@@ -44,6 +44,7 @@ export function CalculatorProvider({ children }) {
 
   // Etapa 4 — Meta de redução (%)
   const [metaReducaoPct, setMetaReducaoPct] = useState(30);
+  const [comentario, setComentario] = useState('');
 
   const result = useMemo(
     () =>
@@ -71,6 +72,7 @@ export function CalculatorProvider({ children }) {
     vmp, setVmp,
     lossItems, setLossItems,
     metaReducaoPct, setMetaReducaoPct,
+    comentario, setComentario,
     result,
   };
 
