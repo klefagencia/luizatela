@@ -25,6 +25,7 @@ export default function Step1Historical() {
     unidadeMedida, setUnidadeMedida,
     historical, setHistorical,
     performanceAtualOverride, setPerformanceAtualOverride,
+    comentario, setComentario,
     result,
   } = useCalculator();
 
@@ -216,6 +217,24 @@ export default function Step1Historical() {
             className="bg-muted border-border h-12 text-base"
           />
         </div>
+      </div>
+
+      {/* Campo de comentário */}
+      <div className="bg-card border border-border rounded-xl p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <Info size={16} weight="duotone" className="text-primary" />
+          <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">
+            Comentário sobre o indicador (opcional)
+          </Label>
+        </div>
+        <textarea
+          data-testid="input-comentario"
+          value={comentario || ""}
+          onChange={(e) => setComentario(e.target.value)}
+          placeholder="Descreva aqui o indicador, a variável de interesse, o fator de ponderação e a unidade de medida para referência futura..."
+          rows={4}
+          className="w-full bg-muted border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+        />
       </div>
 
       {/* Performance Atual */}
