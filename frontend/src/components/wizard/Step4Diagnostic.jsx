@@ -117,8 +117,7 @@ export default function Step4Diagnostic() {
         <p className="text-muted-foreground mt-4 max-w-2xl text-base lg:text-lg">
           Perda anual = <span className="font-mono-num text-foreground">PMM × 12</span> = <span className="text-foreground font-bold font-mono-num">{formatBRLDecimal(result.pmm)}/mês × 12</span>
         </p>
-      </div>
-
+      
       {/* Q11 · Meta de Redução + Valor Recuperável */}
       <div className="bg-gradient-to-br from-emerald-500/15 via-card to-card border-2 border-emerald-500/40 rounded-2xl p-8 lg:p-10 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-80 h-80 rounded-full pointer-events-none"
