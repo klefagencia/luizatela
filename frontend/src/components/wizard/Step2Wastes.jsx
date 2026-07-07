@@ -101,7 +101,7 @@ export default function Step2Benchmark() {
             </Label>
           </div>
           <div className="flex items-baseline gap-3">
-                      <span className="font-display font-black text-4xl sm:text-5xl lg:text-7xl tracking-tight"></span>
+                      <span className="font-display font-black text-4xl sm:text-5xl lg:text-7xl tracking-tight">
               {formatNum(result.gap_eficiencia, 2)}
             </span>
             <span className="text-2xl text-muted-foreground font-mono-num">{unitIsPct ? "pts" : unitDisplay}</span>
