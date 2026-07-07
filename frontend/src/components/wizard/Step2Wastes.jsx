@@ -173,7 +173,7 @@ export default function Step2Benchmark() {
           ) : (
             <>
               <div className="flex items-baseline gap-3 flex-wrap">
-                        <span className="font-display font-black text-4xl sm:text-5xl lg:text-7xl tracking-tight text-destructive font-mono-num"></span>
+                        <span className="font-display font-black text-4xl sm:text-5xl lg:text-7xl tracking-tight text-destructive font-mono-num">
                   <CountUp end={result.pmm} duration={2.4} separator="." decimal="," prefix="R$ " decimals={2} preserveValue />
                 </span>
                 <span className="text-2xl text-muted-foreground font-mono-num tracking-widest">/ MÊS</span>
