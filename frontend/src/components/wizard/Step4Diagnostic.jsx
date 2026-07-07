@@ -96,11 +96,11 @@ export default function Step4Diagnostic() {
           <Warning size={12} weight="fill" />
           Conversão · Impacto Financeiro
         </div>
-        <h2 className="font-display font-black text-4xl lg:text-6xl tracking-tight leading-[0.95]">
+              <h2 className="font-display font-black text-3xl sm:text-4xl lg:text-6xl tracking-tight leading-[0.95]">
           Você está perdendo
         </h2>
         <div
-          className={`font-display font-black text-5xl lg:text-8xl mt-2 tracking-tight ${isCritical ? "critical-text text-destructive" : "text-destructive"}`}
+                  className={`font-display font-black text-3xl sm:text-4xl md:text-5xl lg:text-8xl mt-2 tracking-tight break-words ${isCritical ? "critical-text text-destructive" : "text-destructive"}`}
           data-testid="result-monthly-loss"
         >
           <CountUp
@@ -169,7 +169,7 @@ export default function Step4Diagnostic() {
                 Você pode recuperar
               </Label>
             </div>
-            <div className="font-display font-black text-4xl lg:text-6xl tracking-tight text-emerald-400 leading-none">
+                      <div className="font-display font-black text-3xl sm:text-4xl lg:text-6xl tracking-tight text-emerald-400 leading-none"></div>
               <CountUp end={result.valor_recuperavel_anual} duration={2.4} separator="." decimal="," prefix="R$ " decimals={2} preserveValue />
             </div>
             <div className="text-xs uppercase tracking-[0.2em] font-bold text-muted-foreground mt-2">/ ano do seu GAP</div>
