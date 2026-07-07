@@ -311,13 +311,14 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <footer className="border-t border-border/40 py-8">
+      </main>
+      <footer className="border-t border-border/40 py-8">
                   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground text-center">
             <span>© 2026 Desperdício.io</span>
             <span className="font-mono-num tracking-widest uppercase">Lean · Six Sigma · Diagnostic</span>
           </div>
 
-      </main>
+      </footer>
     </div>
   );
 }
