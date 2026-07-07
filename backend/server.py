@@ -8,6 +8,7 @@ from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional, Any
 import uuid
+import secrets
 from datetime import datetime, timezone
 
 
@@ -200,6 +201,23 @@ async def root():
 async def get_lean_wastes():
     return {"wastes": LEAN_WASTES}
 
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+@api_router.post("/auth/login")
+async def login(payload: LoginRequest):
+    expected_user = os.environ.get("CALC_LOGIN_USER", "admin")
+    expected_pass = os.environ.get("CALC_LOGIN_PASSWORD", "")
+    if not expected_pass:
+        raise HTTPException(status_code=500, detail="Login não configurado no servidor.")
+    valid_user = secrets.compare_digest(payload.username, expected_user)
+    valid_pass = secrets.compare_digest(payload.password, expected_pass)
+    if not (valid_user and valid_pass):
+        raise HTTPException(status_code=401, detail="Usuário ou senha inválidos.")
+    return {"ok": True}
+            
 
 @api_router.post("/calculate", response_model=CalculationResult)
 async def calculate(payload: CalculationInput):
