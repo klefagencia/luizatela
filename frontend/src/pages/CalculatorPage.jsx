@@ -46,7 +46,7 @@ export default function CalculatorPage() {
         </div>
 
         {/* Step content */}
-        <div className="bg-card/60 border border-border rounded-2xl p-6 lg:p-10 backdrop-blur" data-testid="wizard-card">
+        <div className="bg-card/60 border border-border rounded-2xl p-4 sm:p-6 lg:p-10 backdrop-blur" data-testid="wizard-card">
           {step === 0 && <Step1Historical />}
           {step === 1 && <Step2Benchmark />}
           {step === 2 && <Step3LossesCosts />}
@@ -54,14 +54,14 @@ export default function CalculatorPage() {
         </div>
 
         {/* Navigation */}
-        <div className="mt-8 flex items-center justify-between">
+              <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
           <Button
             type="button"
             variant="outline"
             onClick={goPrev}
             disabled={step === 0}
             data-testid="prev-step-btn"
-            className="h-12 px-6 border-border"
+                    className="h-11 sm:h-12 px-4 sm:px-6 border-border"
           >
             <ArrowLeft size={16} weight="bold" /> Voltar
           </Button>
@@ -69,7 +69,7 @@ export default function CalculatorPage() {
             {String(step + 1).padStart(2, "0")} / {String(steps.length).padStart(2, "0")}
           </div>
           {step < steps.length - 1 ? (
-            <Button type="button" onClick={goNext} data-testid="next-step-btn" className="h-12 px-6 font-bold group">
+            <Button type="button" onClick={goNext} data-testid="next-step-btn" className="h-11 sm:h-12 px-4 sm:px-6 font-bold group">
               Avançar
               <ArrowRight size={16} weight="bold" className="ml-1 group-hover:translate-x-1 transition-transform" />
             </Button>
@@ -79,7 +79,7 @@ export default function CalculatorPage() {
               variant="outline"
               onClick={() => setStep(0)}
               data-testid="restart-btn"
-              className="h-12 px-6 border-border"
+                        className="h-11 sm:h-12 px-4 sm:px-6 border-border"
             >
               Recomeçar
             </Button>
