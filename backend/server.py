@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional, Any
 import uuid
 import secrets
+import bcrypt
 from datetime import datetime, timezone
 
 
@@ -201,6 +202,13 @@ async def root():
 async def get_lean_wastes():
     return {"wastes": LEAN_WASTES}
 
+def hash_password(password: str) -> str:
+    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    
+
+def verify_password(password: str, password_hash: str) -> bool:
+    return bool(password_hash) and bcrypt.checkpw(password.encode("utf-8"), password_hash.encode("utf-8"))
+
 class LoginRequest(BaseModel):
     username: str
     password: str
@@ -208,15 +216,31 @@ class LoginRequest(BaseModel):
 
 @api_router.post("/auth/login")
 async def login(payload: LoginRequest):
-    expected_user = os.environ.get("CALC_LOGIN_USER", "admin")
-    expected_pass = os.environ.get("CALC_LOGIN_PASSWORD", "")
-    if not expected_pass:
-        raise HTTPException(status_code=500, detail="Login não configurado no servidor.")
-    valid_user = secrets.compare_digest(payload.username, expected_user)
-    valid_pass = secrets.compare_digest(payload.password, expected_pass)
-    if not (valid_user and valid_pass):
-        raise HTTPException(status_code=401, detail="Usuário ou senha inválidos.")
+expected_user = os.environ.get("CALC_LOGIN_USER", "admin")
+expected_pass = os.environ.get("CALC_LOGIN_PASSWORD", "")
+is_admin = bool(expected_pass) and secrets.compare_digest(payload.username, expected_user) and secrets.compare_digest(payload.password, expected_pass)
+user_doc = None if is_admin else await db.users.find_one({"username": payload.username})
+is_user = (not is_admin) and bool(user_doc) and verify_password(payload.password, (user_doc or {}).get("password_hash", ""))
+if not (is_admin or is_user):
+    raise HTTPException(status_code=401, detail="Usuário ou senha inválidos.")
+return {"ok": True, "role": "admin" if is_admin else "user"}
+class RegisterRequest(BaseModel):
+    username: str
+    password: str
+@api_router.post("/auth/register")
+async def register(payload: RegisterRequest):
+    username = payload.username.strip()
+    password = payload.password
+    admin_user = os.environ.get("CALC_LOGIN_USER", "admin")
+    is_admin_name = bool(username) and username.lower() == admin_user.lower()
+    existing = None if (not username or is_admin_name) else await db.users.find_one({"username": username})
+    if not username or not password or len(password) < 6 or is_admin_name or existing:
+        raise HTTPException(status_code=400, detail="Não foi possível criar o usuário. Verifique os dados e tente outro nome de usuário.")
+    user_doc = {"id": str(uuid.uuid4()), "username": username, "password_hash": hash_password(password), "created_at": datetime.utcnow().isoformat()}
+    await db.users.insert_one(user_doc)
     return {"ok": True}
+
+            
             
 
 @api_router.post("/calculate", response_model=CalculationResult)
