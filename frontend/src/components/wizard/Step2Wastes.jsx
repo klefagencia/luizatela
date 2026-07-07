@@ -59,7 +59,7 @@ export default function Step2Benchmark() {
               step="0.01"
               value={valorReferencia}
               onChange={(e) => setValorReferencia(Number(e.target.value || 0))}
-              className="bg-muted border-border h-20 font-mono-num font-bold text-5xl lg:text-6xl text-center flex-1"
+              className="bg-muted border-border h-20 font-mono-num font-bold text-3xl sm:text-4xl lg:text-6xl text-center flex-1"
             />
             {unitDisplay && (
               <span className="font-mono-num text-2xl lg:text-3xl text-muted-foreground font-bold">{unitDisplay}</span>
@@ -101,7 +101,7 @@ export default function Step2Benchmark() {
             </Label>
           </div>
           <div className="flex items-baseline gap-3">
-            <span className="font-display font-black text-5xl lg:text-7xl tracking-tight">
+                      <span className="font-display font-black text-4xl sm:text-5xl lg:text-7xl tracking-tight"></span>
               {formatNum(result.gap_eficiencia, 2)}
             </span>
             <span className="text-2xl text-muted-foreground font-mono-num">{unitIsPct ? "pts" : unitDisplay}</span>
@@ -173,7 +173,7 @@ export default function Step2Benchmark() {
           ) : (
             <>
               <div className="flex items-baseline gap-3 flex-wrap">
-                <span className="font-display font-black text-5xl lg:text-7xl tracking-tight text-destructive font-mono-num">
+                        <span className="font-display font-black text-4xl sm:text-5xl lg:text-7xl tracking-tight text-destructive font-mono-num"></span>
                   <CountUp end={result.pmm} duration={2.4} separator="." decimal="," prefix="R$ " decimals={2} preserveValue />
                 </span>
                 <span className="text-2xl text-muted-foreground font-mono-num tracking-widest">/ MÊS</span>
