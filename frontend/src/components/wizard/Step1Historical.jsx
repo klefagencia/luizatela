@@ -373,6 +373,7 @@ export default function Step1Historical() {
                                                                                                                 onChange={(e) => updateLabel(i, e.target.value)}
                                                                                                                 className="bg-transparent border-transparent hover:border-border h-8 text-sm font-semibold"
                                                                                                               />
+                                                                    </div>
                                                                                       <Button
                                                                                                             type="button"
                                                                                                             variant="ghost"
@@ -385,7 +386,7 @@ export default function Step1Historical() {
                                                                                         </Button>
                 <div className="grid grid-cols-2 gap-2">
                                   <div>
-                                                      <span className="text-[9px] uppercase tracking-wider text-muted-foreground">{indicatorName || 'Variável'}</span>span>
+                                                      <span className="text-[9px] uppercase tracking-wider text-muted-foreground">{indicatorName || 'Variável'}</span>
                                                       <Input
                                                                               data-testid={`historical-num-mobile-${i}`}
                                                                               type="number"
@@ -395,7 +396,7 @@ export default function Step1Historical() {
                                                                               className="bg-transparent border-border h-9 text-right font-mono-num text-sm"
                                                                             />
                                                     <div>
-                                                                        <span className="text-[9px] uppercase tracking-wider text-muted-foreground">{denominatorName || 'Fator'}</span>span>
+                                                                        <span className="text-[9px] uppercase tracking-wider text-muted-foreground">{denominatorName || 'Fator'}</span>
                                                                         <Input
                                                                                                 data-testid={`historical-den-mobile-${i}`}
                                                                                                 type="number"
