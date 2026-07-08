@@ -395,6 +395,7 @@ export default function Step1Historical() {
                                                                               onChange={(e) => updateNumerator(i, e.target.value)}
                                                                               className="bg-transparent border-border h-9 text-right font-mono-num text-sm"
                                                                             />
+                                  </div>
                                                     <div>
                                                                         <span className="text-[9px] uppercase tracking-wider text-muted-foreground">{denominatorName || 'Fator'}</span>
                                                                         <Input
