@@ -384,6 +384,7 @@ export default function Step1Historical() {
                                                                                                           >
                                                                                                           <Trash size={14} />
                                                                                         </Button>
+                                                  </div>
                 <div className="grid grid-cols-2 gap-2">
                                   <div>
                                                       <span className="text-[9px] uppercase tracking-wider text-muted-foreground">{indicatorName || 'Variável'}</span>
@@ -404,18 +405,19 @@ export default function Step1Historical() {
                                                                                                 step="0.01"
                                                                                                 value={p.denominator}
                                                                                                 onChange={(e) => updateDenominator(i, e.target.value)}
-                                                                                                className="bg-transparent border-border h-9 text-right font-mono-num text-sm"
-                                                                                          
+                                                                                                className="bg-transparent border-border h-9 text-right font-mono-num text-sm" />
                                                     </div>
+                                                                                                                                                                                    />                                                    </div>
+
                                                   <div className="text-right text-sm font-mono-num text-primary font-bold">
                                                     {unitIsPct ? `${pct.toFixed(2)}%` : `${pct.toFixed(2)} ${unidadeMedida || ''}`}
                                                   </div>
-                                  </div>
+                                            </div>
+                    </div>
                             );
                                                     })}
                 
                 </div>
-                                                                    </div>
                                                                     </div>
       </div>
 
