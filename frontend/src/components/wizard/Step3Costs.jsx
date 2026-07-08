@@ -92,7 +92,7 @@ export default function Step3LossesCosts() {
             Nenhuma perda adicionada ainda. Clique em "Adicionar perda" para começar.
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground bg-muted/40">
                 <tr>
@@ -190,6 +190,91 @@ export default function Step3LossesCosts() {
               </tbody>
             </table>
           </div>
+            <div className="md:hidden divide-y divide-border/40">
+              {lossItems.map((it, idx) => {
+                const computed = result.items.find((r) => r.id === it.id);
+                return (
+                  <div key={it.id} className="p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono-num text-xs text-muted-foreground">{String(idx + 1).padStart(2, "0")}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeItem(it.id)}
+                        data-testid={`remove-loss-mobile-${idx}`}
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      >
+                        <Trash size={14} />
+                      </Button>
+                    </div>
+                    <div>
+                      <Label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Descrição da Perda</Label>
+                      <Input
+                        data-testid={`loss-desc-mobile-${idx}`}
+                        value={it.description}
+                        onChange={(e) => updateItem(it.id, { description: e.target.value })}
+                        placeholder="Ex: Veículo parado, Refugo de matéria-prima..."
+                        className="bg-transparent border-border h-9 text-sm mt-1"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Custo Unitário</Label>
+                        <div className="relative mt-1">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs font-mono-num">R$</span>
+                          <Input
+                            data-testid={`loss-unit-mobile-${idx}`}
+                            type="number"
+                            step="0.01"
+                            value={it.unit_cost}
+                            onChange={(e) => updateItem(it.id, { unit_cost: Number(e.target.value || 0) })}
+                            className="bg-transparent border-border h-9 pl-9 text-right font-mono-num text-sm"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Ocorrência/Mês</Label>
+                        <Input
+                          data-testid={`loss-oc-mobile-${idx}`}
+                          type="number"
+                          step="1"
+                          min="0"
+                          value={it.ocorrencia_mensal}
+                          onChange={(e) => updateItem(it.id, { ocorrencia_mensal: Number(e.target.value || 0) })}
+                          className="bg-transparent border-border h-9 text-right font-mono-num text-sm mt-1"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Tipo Lean (opcional)</Label>
+                      <Select
+                        value={it.category || "__none__"}
+                        onValueChange={(v) => updateItem(it.id, { category: v === "__none__" ? "" : v })}
+                      >
+                        <SelectTrigger data-testid={`loss-cat-mobile-${idx}`} className="h-9 bg-transparent border-border text-xs mt-1">
+                          <SelectValue placeholder="Não classificar" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__none__">— Não classificar —</SelectItem>
+                          {LEAN_WASTES.map((w) => (
+                            <SelectItem key={w.id} value={w.id}>{w.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex items-center justify-between pt-2 border-t border-border/40">
+                      <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground">Custo Mensal</span>
+                      <span className="font-mono-num text-sm font-bold text-destructive">{formatBRLDecimal(computed?.custo_mensal || 0)}</span>
+                    </div>
+                  </div>
+                );
+              })}
+              <div className="flex items-center justify-between p-4 bg-primary/5 border-t-2 border-primary/40">
+                <span className="text-xs uppercase tracking-[0.2em] font-bold text-muted-foreground">Σ Soma das perdas (mensal)</span>
+                <span className="font-mono-num font-black text-primary text-base" data-testid="sum-losses-mobile">{formatBRLDecimal(result.soma_perdas)}</span>
+              </div>
+            </div>
         )}
       </div>
 
