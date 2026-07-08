@@ -354,6 +354,66 @@ export default function Step1Historical() {
             </tbody>
           </table>
         </div>
+        <div className="block md:hidden divide-y divide-border max-h-96 overflow-y-auto">
+          {historical.map((p, i) => {
+                  const included = p.included !== false;
+                  const pct = ratioDisplay(p.numerator, p.denominator, unitIsPct);
+                  return (
+                                  <div key={i} className={`p-3 space-y-2 ${!included ? 'opacity-50' : ''}`}>
+                                                  <div className="flex items-center justify-between gap-2">
+                                                                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                                                                                        <Checkbox
+                                                                                                                data-testid={`historical-check-mobile-${i}`}
+                                                                                                                checked={included}
+                                                                                                                onCheckedChange={() => toggleIncluded(i)}
+                                                                                                              />
+                                                                                        <Input
+                                                                                                                data-testid={`historical-label-mobile-${i}`}
+                                                                                                                value={p.label}
+                                                                                                                onChange={(e) => updateLabel(i, e.target.value)}
+                                                                                                                className="bg-transparent border-transparent hover:border-border h-8 text-sm font-semibold"
+                                                                                                              />
+                                                                                      <Button
+                                                                                                            type="button"
+                                                                                                            variant="ghost"
+                                                                                                            size="icon"
+                                                                                                            onClick={() => removePoint(i)}
+                                                                                                            data-testid={`remove-historical-mobile-${i}`}
+                                                                                                            className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
+                                                                                                          >
+                                                                                                          <Trash size={14} />
+                                                                                        </Button>
+                <div className="grid grid-cols-2 gap-2">
+                                  <div>
+                                                      <span className="text-[9px] uppercase tracking-wider text-muted-foreground">{indicatorName || 'Variável'}</span>span>
+                                                      <Input
+                                                                              data-testid={`historical-num-mobile-${i}`}
+                                                                              type="number"
+                                                                              step="0.01"
+                                                                              value={p.numerator}
+                                                                              onChange={(e) => updateNumerator(i, e.target.value)}
+                                                                              className="bg-transparent border-border h-9 text-right font-mono-num text-sm"
+                                                                            />
+                                                    <div>
+                                                                        <span className="text-[9px] uppercase tracking-wider text-muted-foreground">{denominatorName || 'Fator'}</span>span>
+                                                                        <Input
+                                                                                                data-testid={`historical-den-mobile-${i}`}
+                                                                                                type="number"
+                                                                                                step="0.01"
+                                                                                                value={p.denominator}
+                                                                                                onChange={(e) => updateDenominator(i, e.target.value)}
+                                                                                                className="bg-transparent border-border h-9 text-right font-mono-num text-sm"
+                                                                                          
+                                                    </div>
+                                                  <div className="text-right text-sm font-mono-num text-primary font-bold">
+                                                    {unitIsPct ? `${pct.toFixed(2)}%` : `${pct.toFixed(2)} ${unidadeMedida || ''}`}
+                                                  </div>
+                                  </div>
+                            );
+                
+                </div>
+                                                                    </div>
+                                                                    </div>
       </div>
 
       {/* Chart preview · após entrada de dados */}
