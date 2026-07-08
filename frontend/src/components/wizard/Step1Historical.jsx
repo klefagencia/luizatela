@@ -275,7 +275,7 @@ export default function Step1Historical() {
             <Plus size={14} weight="bold" /> Adicionar mês
           </Button>
         </div>
-        <div className="max-h-96 overflow-y-auto overflow-x-auto">
+        <div className="hidden md:block max-h-96 overflow-y-auto overflow-x-auto">
           <table className="w-full min-w-[720px] text-sm">
             <thead className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground bg-muted/40 sticky top-0 backdrop-blur">
               <tr>
