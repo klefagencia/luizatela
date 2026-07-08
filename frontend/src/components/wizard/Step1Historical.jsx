@@ -418,8 +418,7 @@ export default function Step1Historical() {
                 
                 </div>
                                                                     </div>
-      </div>
-
+      
       {/* Chart preview · após entrada de dados */}
       <div className="bg-card border border-border rounded-xl p-5 lg:p-6">
         <div className="flex items-center justify-between mb-4">
