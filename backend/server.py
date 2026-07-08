@@ -216,14 +216,14 @@ class LoginRequest(BaseModel):
 
 @api_router.post("/auth/login")
 async def login(payload: LoginRequest):
-expected_user = os.environ.get("CALC_LOGIN_USER", "admin")
-expected_pass = os.environ.get("CALC_LOGIN_PASSWORD", "")
-is_admin = bool(expected_pass) and secrets.compare_digest(payload.username, expected_user) and secrets.compare_digest(payload.password, expected_pass)
-user_doc = None if is_admin else await db.users.find_one({"username": payload.username})
-is_user = (not is_admin) and bool(user_doc) and verify_password(payload.password, (user_doc or {}).get("password_hash", ""))
-if not (is_admin or is_user):
-    raise HTTPException(status_code=401, detail="Usuário ou senha inválidos.")
-return {"ok": True, "role": "admin" if is_admin else "user"}
+    expected_user = os.environ.get("CALC_LOGIN_USER", "admin")
+    expected_pass = os.environ.get("CALC_LOGIN_PASSWORD", "")
+    is_admin = bool(expected_pass) and secrets.compare_digest(payload.username, expected_user) and secrets.compare_digest(payload.password, expected_pass)
+    user_doc = None if is_admin else await db.users.find_one({"username": payload.username})
+    is_user = (not is_admin) and bool(user_doc) and verify_password(payload.password, (user_doc or {}).get("password_hash", ""))
+    if not (is_admin or is_user):
+        raise HTTPException(status_code=401, detail="Usuário ou senha inválidos.")
+    return {"ok": True, "role": "admin" if is_admin else "user"}
 class RegisterRequest(BaseModel):
     username: str
     password: str
