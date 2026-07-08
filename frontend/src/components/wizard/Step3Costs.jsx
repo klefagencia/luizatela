@@ -92,6 +92,7 @@ export default function Step3LossesCosts() {
             Nenhuma perda adicionada ainda. Clique em "Adicionar perda" para começar.
           </div>
         ) : (
+          <>
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground bg-muted/40">
@@ -275,6 +276,7 @@ export default function Step3LossesCosts() {
                 <span className="font-mono-num font-black text-primary text-base" data-testid="sum-losses-mobile">{formatBRLDecimal(result.soma_perdas)}</span>
               </div>
             </div>
+          </>
         )}
       </div>
 
