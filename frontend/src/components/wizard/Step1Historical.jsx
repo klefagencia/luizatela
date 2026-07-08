@@ -418,7 +418,7 @@ export default function Step1Historical() {
                 
                 </div>
                                                                     </div>
-      </di</div>
+      </div>
 
       {/* Chart preview · após entrada de dados */}
       <div className="bg-card border border-border rounded-xl p-5 lg:p-6">
