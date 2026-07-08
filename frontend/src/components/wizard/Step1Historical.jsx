@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import {
   Plus, Trash, ChartLineUp, Sparkle, Check, Tag, Coins, TrendUp, Star, Timer, Ruler, Info,
@@ -28,6 +28,7 @@ export default function Step1Historical() {
     comentario, setComentario,
     result,
   } = useCalculator();
+  const [openInfo, setOpenInfo] = useState(null);
 
   const updateNumerator = (idx, v) => {
     const next = [...historical];
@@ -148,17 +149,11 @@ export default function Step1Historical() {
             <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">
               Variável de interesse
             </Label>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button type="button" className="text-muted-foreground hover:text-foreground transition-colors ml-1"><Info size={14} weight="duotone" /></button>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-sm text-left">
-                  <p className="text-xs leading-relaxed">É o número que representa o processo que você quer analisar. Pode estar associado a um determinado custo (variável, fixo, etc), ou volume produzido (peça, tarefa, fluxo, etc), ou uma característica de qualidade a ser melhorada (resistência, refugo, peças de máquina, etc), ou um tempo de execução de determinada atividade que precisa ser reduzido (preparo, carregamento, expedição, etc).</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+<button type="button" onClick={() => setOpenInfo(openInfo === "variable" ? null : "variable")} className="text-muted-foreground hover:text-foreground transition-colors ml-1" data-testid="info-toggle-variable"><Info size={14} weight="duotone" /></button>
           </div>
+          {openInfo === "variable" && (
+            <p className="text-xs leading-relaxed text-muted-foreground bg-muted/60 border border-border rounded-lg p-3 mb-3" data-testid="info-text-variable">É o número que representa o processo que você quer analisar. Pode estar associado a um determinado custo (variável, fixo, etc), ou volume produzido (peça, tarefa, volume, etc), ou uma característica de qualidade a ser melhorada (resistência, refugo, paradas de máquina, etc), ou um tempo de execução de determinada atividade que precisa ser reduzido (preparo, carregamento, expedição, etc).</p>
+          )}
           <Input
             data-testid="input-indicator-name"
             value={indicatorName}
@@ -173,17 +168,11 @@ export default function Step1Historical() {
             <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">
               Fator de ponderação
             </Label>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button type="button" className="text-muted-foreground hover:text-foreground transition-colors ml-1"><Info size={14} weight="duotone" /></button>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-sm text-left">
-                  <p className="text-xs leading-relaxed">Caso sua variável de interesse seja ponderável, informe qual é o denominador da equação e preencha as duas colunas com os dados dos meses. Exemplos: (1) Custo variável (R$) por Faturamento (R$). (2) Volume produzido (unidade, kg, tonelada, m, m2, etc) por Mês — o volume precisa ser mensalizado. (3) Paradas de máquina (horas, nº paradas, etc) por Mês — o número de paradas precisa ser mensalizado. (4) Tempo de carregamento (horas, minutos, segundos) por Mês — o tempo precisa representar valor médio do mês. Caso a variável NÃO seja ponderável, preencha o fator com 1.</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+<button type="button" onClick={() => setOpenInfo(openInfo === "factor" ? null : "factor")} className="text-muted-foreground hover:text-foreground transition-colors ml-1" data-testid="info-toggle-factor"><Info size={14} weight="duotone" /></button>
           </div>
+          {openInfo === "factor" && (
+            <p className="text-xs leading-relaxed text-muted-foreground bg-muted/60 border border-border rounded-lg p-3 mb-3" data-testid="info-text-factor">Caso a sua variável de interesse seja ponderável, informar qual é o denominador da equação e preencher as duas colunas com os dados do mês. Exemplos: Custo variável (R$) por Faturamento (R$) – neste caso o faturamento é o fator de ponderação e o custo variável é a variável de interesse. Caso a sua variável de interesse NÃO seja ponderável, a coluna de dados deve ser preenchida com valores mensalizados e o fator de ponderação deve ser preenchido com o número 1. Exemplos: Volume produzido (unidade, kg, tonelada, m, m2, etc) por Mês – neste caso o mês é o fator de ponderação e o volume produzido é a variável de interesse. O volume precisa ser mensalizado. Paradas de máquina (horas, nº paradas, etc) por Mês – neste caso o mês é o fator de ponderação e parada de máquina é a variável de interesse. O número referente às paradas precisa ser mensalizado. Tempo de carregamento (horas, minutos, segundos) por Mês – neste caso o mês é o fator de ponderação e o tempo de carregamento é a variável de interesse. O tempo de carregamento precisa representar o valor médio do mês.</p>
+          )}
           <Input
             data-testid="input-denominator-name"
             value={denominatorName}
@@ -198,17 +187,11 @@ export default function Step1Historical() {
             <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">
               Unidade de medida
             </Label>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button type="button" className="text-muted-foreground hover:text-foreground transition-colors ml-1"><Info size={14} weight="duotone" /></button>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-sm text-left">
-                  <p className="text-xs leading-relaxed">Caso sua variável de interesse seja ponderável, a unidade de medida deverá ser preenchida com "%". Caso contrário, preencha com a unidade de medida da sua variável de interesse (ex: R$, peças, horas, kg, ton).</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+<button type="button" onClick={() => setOpenInfo(openInfo === "unit" ? null : "unit")} className="text-muted-foreground hover:text-foreground transition-colors ml-1" data-testid="info-toggle-unit"><Info size={14} weight="duotone" /></button>
           </div>
+          {openInfo === "unit" && (
+            <p className="text-xs leading-relaxed text-muted-foreground bg-muted/60 border border-border rounded-lg p-3 mb-3" data-testid="info-text-unit">Caso a sua variável de interesse seja ponderável, a unidade de medida deverá ser preenchida com "%". Caso contrário, preencher com a unidade de medida da sua variável de interesse.</p>
+          )}
           <Input
             data-testid="input-unit-name"
             value={unidadeMedida}
@@ -217,24 +200,6 @@ export default function Step1Historical() {
             className="bg-muted border-border h-12 text-base"
           />
         </div>
-      </div>
-
-      {/* Campo de comentário */}
-      <div className="bg-card border border-border rounded-xl p-5">
-        <div className="flex items-center gap-2 mb-3">
-          <Info size={16} weight="duotone" className="text-primary" />
-          <Label className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">
-            Comentário sobre o indicador (opcional)
-          </Label>
-        </div>
-        <textarea
-          data-testid="input-comentario"
-          value={comentario || ""}
-          onChange={(e) => setComentario(e.target.value)}
-          placeholder="Descreva aqui o indicador, a variável de interesse, o fator de ponderação e a unidade de medida para referência futura..."
-          rows={4}
-          className="w-full bg-muted border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none"
-        />
       </div>
 
       {/* Performance Atual */}
