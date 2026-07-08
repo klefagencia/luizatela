@@ -407,19 +407,18 @@ export default function Step1Historical() {
                                                                                                 onChange={(e) => updateDenominator(i, e.target.value)}
                                                                                                 className="bg-transparent border-border h-9 text-right font-mono-num text-sm" />
                                                     </div>
-                                                                                                                                                                                    />                                                    </div>
+                                                                                                                    </div>
 
                                                   <div className="text-right text-sm font-mono-num text-primary font-bold">
                                                     {unitIsPct ? `${pct.toFixed(2)}%` : `${pct.toFixed(2)} ${unidadeMedida || ''}`}
                                                   </div>
-                                            </div>
-                    </div>
+                                                </div>
                             );
                                                     })}
                 
                 </div>
                                                                     </div>
-      </div>
+      </di</div>
 
       {/* Chart preview · após entrada de dados */}
       <div className="bg-card border border-border rounded-xl p-5 lg:p-6">
