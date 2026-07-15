@@ -25,6 +25,8 @@ export default function Step4Diagnostic() {
     metaReducaoPct, setMetaReducaoPct,
     efficiencyType,
     unidadeMedida,
+    vmp,
+    comentario,
   } = useCalculator();
 
   const saveSimulation = async () => {
@@ -206,6 +208,79 @@ export default function Step4Diagnostic() {
         >
           Imprimir / PDF
         </Button>
+      </div>
+      {/* Resumo completo para impressao (Etapas 1 a 4) - historico completo do preenchimento */}
+      <div className="hidden print:block mt-10 pt-6 border-t border-gray-300 text-black">
+        <h3 className="font-display font-black text-xl mb-3">Resumo completo da simulacao</h3>
+
+        <div className="mb-4">
+          <h4 className="font-bold text-sm uppercase tracking-wider mb-1">Etapa 1 - Avaliacao Historica</h4>
+          <p className="text-xs mb-1">Indicador: {indicatorName} / {denominatorName} - Unidade: {unidadeMedida} - Tipo: {efficiencyType}</p>
+          {performanceAtualOverride !== null && performanceAtualOverride !== "" && (
+            <p className="text-xs mb-1">Performance atual informada manualmente: {performanceAtualOverride}</p>
+          )}
+          <table className="w-full text-[10px] border-collapse mt-1">
+            <thead>
+              <tr>
+                <th className="border border-gray-300 px-1 py-0.5 text-left">Mes</th>
+                <th className="border border-gray-300 px-1 py-0.5 text-left">Numerador</th>
+                <th className="border border-gray-300 px-1 py-0.5 text-left">Denominador</th>
+                <th className="border border-gray-300 px-1 py-0.5 text-left">Incluido</th>
+              </tr>
+            </thead>
+            <tbody>
+              {historical.map((h, idx) => (
+                <tr key={idx}>
+                  <td className="border border-gray-300 px-1 py-0.5">{h.label}</td>
+                  <td className="border border-gray-300 px-1 py-0.5">{h.numerator}</td>
+                  <td className="border border-gray-300 px-1 py-0.5">{h.denominator}</td>
+                  <td className="border border-gray-300 px-1 py-0.5">{h.included ? "Sim" : "Nao"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="mb-4">
+          <h4 className="font-bold text-sm uppercase tracking-wider mb-1">Etapa 2 - Benchmark</h4>
+          <p className="text-xs">Valor de referencia: {valorReferencia} - VMP (Valor Monetario Perdido por unidade): {formatBRLDecimal(vmp)}</p>
+        </div>
+
+        <div className="mb-4">
+          <h4 className="font-bold text-sm uppercase tracking-wider mb-1">Etapa 3 - Desperdicios</h4>
+          <table className="w-full text-[10px] border-collapse mt-1">
+            <thead>
+              <tr>
+                <th className="border border-gray-300 px-1 py-0.5 text-left">Descricao</th>
+                <th className="border border-gray-300 px-1 py-0.5 text-left">Categoria</th>
+                <th className="border border-gray-300 px-1 py-0.5 text-left">Custo unitario</th>
+                <th className="border border-gray-300 px-1 py-0.5 text-left">Ocorrencia mensal</th>
+                <th className="border border-gray-300 px-1 py-0.5 text-left">Custo mensal</th>
+              </tr>
+            </thead>
+            <tbody>
+              {result.items.map((it) => (
+                <tr key={it.id}>
+                  <td className="border border-gray-300 px-1 py-0.5">{it.description}</td>
+                  <td className="border border-gray-300 px-1 py-0.5">{it.category}</td>
+                  <td className="border border-gray-300 px-1 py-0.5">{formatBRLDecimal(it.unit_cost)}</td>
+                  <td className="border border-gray-300 px-1 py-0.5">{it.ocorrencia_mensal}</td>
+                  <td className="border border-gray-300 px-1 py-0.5">{formatBRLDecimal(it.custo_mensal)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div>
+          <h4 className="font-bold text-sm uppercase tracking-wider mb-1">Etapa 4 - Conversao / Diagnostico</h4>
+          <p className="text-xs mb-1">Meta de reducao: {result.meta_reducao_pct}%</p>
+          {comentario && <p className="text-xs mb-1">Comentario: {comentario}</p>}
+          <p className="text-xs mb-1">Perda financeira mensal: {formatBRLDecimal(result.perda_financeira_mensal)}</p>
+          <p className="text-xs mb-1">Perda financeira anual: {formatBRLDecimal(result.perda_financeira_anual)}</p>
+          <p className="text-xs mb-1">Valor recuperavel mensal: {formatBRLDecimal(result.valor_recuperavel_mensal)}</p>
+          <p className="text-xs mb-1">Valor recuperavel anual: {formatBRLDecimal(result.valor_recuperavel_anual)}</p>
+        </div>
       </div>
     </motion.div>
   );
